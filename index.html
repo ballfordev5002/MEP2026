@@ -12,36 +12,22 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--r:16px;--r-sm:10px;}
 
-/* ── THEME 1: Yearbook (Dark Classic) ──────────────────────── */
+/* ── THEME 1: Dark  (V2 Trading Card) ──────────────────────── */
 [data-theme="1"]{
-  --bg:#0c1410;--surface:#15211a;--surface2:#1c2e22;--border:rgba(255,255,255,.08);
+  --bg:#0a1a10;--surface:#16321f;--surface2:#1f4128;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);
   --text:#f1f7ed;--muted:#8fb39b;
   --primary:#00c853;--primary-bg:rgba(0,200,83,.15);
-  --accent:#c89211;--yellow:#c89211;--red:#f87171;
-  --login-bg:linear-gradient(135deg,#061008 0%,#132218 50%,#061008 100%);
+  --accent:#ffc83d;--yellow:#ffc83d;--red:#ff6b6b;
+  --green-deep:#005c2a;
+  --login-bg:radial-gradient(ellipse at top,rgba(0,147,68,.25),transparent 50%),radial-gradient(circle at bottom right,rgba(251,176,64,.08),transparent 50%);
 }
-/* ── THEME 2: Trading Card (Vibrant) ───────────────────────── */
+/* ── THEME 2: Light (V3 Modern) ─────────────────────────────── */
 [data-theme="2"]{
-  --bg:#071812;--surface:#0e2218;--surface2:#152d20;--border:rgba(255,255,255,.10);
-  --text:#f0faf4;--muted:#7ab890;
-  --primary:#00e676;--primary-bg:rgba(0,230,118,.12);
-  --accent:#fbb040;--yellow:#fbb040;--red:#ff6b6b;
-  --login-bg:linear-gradient(135deg,#040e0a 0%,#0e2218 50%,#040e0a 100%);
-}
-/* ── THEME 3: Modern Emerald (Elegant) ─────────────────────── */
-[data-theme="3"]{
-  --bg:#05140c;--surface:#0c2316;--surface2:#122d1d;--border:rgba(255,255,255,.07);
-  --text:#ecf8f0;--muted:#6aaa80;
-  --primary:#00803a;--primary-bg:rgba(0,128,58,.15);
-  --accent:#f4b500;--yellow:#f4b500;--red:#f87171;
-  --login-bg:linear-gradient(135deg,#030d07 0%,#0c2316 50%,#030d07 100%);
-}
-/* ── THEME 4: Light Clean ───────────────────────────────────── */
-[data-theme="4"]{
-  --bg:#f8faf8;--surface:#ffffff;--surface2:#f0f7f1;--border:rgba(0,0,0,.08);
-  --text:#111827;--muted:#6b7280;
-  --primary:#16a34a;--primary-bg:rgba(22,163,74,.10);
-  --accent:#d97706;--yellow:#d97706;--red:#dc2626;
+  --bg:#f6f5f0;--surface:#ffffff;--surface2:#ecebe2;--border:rgba(12,20,16,.06);--border2:rgba(12,20,16,.10);
+  --text:#0c1410;--muted:#6b7669;
+  --primary:#00803a;--primary-bg:rgba(0,128,58,.10);
+  --accent:#f4b500;--yellow:#f4b500;--red:#dc2626;
+  --green-deep:#005c2a;
   --login-bg:linear-gradient(135deg,#f0fdf4 0%,#fefce8 50%,#f0fdf4 100%);
 }
 html{font-size:16px}
@@ -91,10 +77,8 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .th-swatch{width:34px;height:34px;border-radius:10px;border:2px solid transparent;cursor:pointer;transition:all .15s;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px}
 .th-swatch:hover{transform:scale(1.12)}
 .th-swatch.active{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-bg)}
-.th-swatch[data-t="1"]{background:#15211a}
-.th-swatch[data-t="2"]{background:#0e2218}
-.th-swatch[data-t="3"]{background:#091a10}
-.th-swatch[data-t="4"]{background:#f0f7f1;border-color:#d1d5db}
+.th-swatch[data-t="1"]{background:#16321f}
+.th-swatch[data-t="2"]{background:#f0f7f1;border-color:#c8d5ca}
 .lang-row{display:flex;gap:4px;padding:4px 12px 10px}
 .lang-btn{flex:1;background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
 .lang-btn.active{background:var(--primary-bg);border-color:var(--primary);color:var(--primary)}
@@ -131,65 +115,64 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .tf-btn:hover{border-color:var(--primary);color:var(--primary)}
 .tf-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 /* ── STUDENTS GRID ─────────────────────────────────────────── */
-.students-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;padding:14px;overflow-y:auto}
+.students-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:12px;padding:14px;overflow-y:auto}
 /* ── FLIP CARD ─────────────────────────────────────────────── */
-.flip-wrap{perspective:1200px;height:220px}
+.flip-wrap{perspective:1200px;height:260px}
 .flip-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1);cursor:pointer}
 .flip-wrap.flipped .flip-inner{transform:rotateY(180deg)}
 .flip-front,.flip-back{position:absolute;inset:0;border-radius:var(--r);backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
 .flip-back{transform:rotateY(180deg)}
-/* THEMES */
-.th-galaxy{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:#fff}
-.th-nature{background:linear-gradient(135deg,#134e5e,#71b280);color:#fff}
-.th-pastel{background:linear-gradient(135deg,#ffd3e0,#c9d6ff);color:#3730a3}
-.th-sport{background:linear-gradient(135deg,#f12711,#f5af19);color:#fff}
-.th-cyber{background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:#00f5ff}
-.th-debsirin{background:linear-gradient(135deg,#00622a,#009344,#fbb040);color:#fff}
-.th-debsirin .cf-id,.th-debsirin .cf-transport{background:rgba(0,0,0,.3)}
-.th-debsirin .cf-theme-btn{background:rgba(0,0,0,.25)}
-/* CARD FRONT */
-.cf-inner{height:100%;display:flex;flex-direction:column;align-items:center;padding:14px 10px 10px;position:relative}
-.cf-id{position:absolute;top:7px;left:7px;font-size:9px;font-weight:600;background:rgba(0,0,0,.25);padding:2px 6px;border-radius:7px;opacity:.8}
-.cf-theme-btn{position:absolute;top:7px;right:7px;font-size:14px;background:rgba(0,0,0,.2);border:none;border-radius:6px;padding:2px 5px;line-height:1;color:inherit}
-.photo-wrap{width:68px;height:68px;border-radius:50%;border:3px solid rgba(255,255,255,.4);overflow:hidden;margin-bottom:9px;background:rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;flex-shrink:0}
-.photo-wrap img{width:100%;height:100%;object-fit:cover}
-.cf-nick{font-size:19px;font-weight:700;text-align:center;line-height:1.2}
-.cf-name{font-size:9.5px;opacity:.75;text-align:center;margin-top:3px;line-height:1.3}
-.cf-transport{margin-top:auto;font-size:9.5px;opacity:.75;background:rgba(0,0,0,.2);padding:3px 9px;border-radius:10px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cf-hint{position:absolute;bottom:7px;right:8px;font-size:12px;opacity:.4}
-/* CARD BACK */
+/* ── PER-STUDENT CARD COLORS ────────────────────────────────── */
+.th-debsirin{background:linear-gradient(160deg,#00622a,#009344 50%,#fbb040 110%);color:#fff}
+.th-galaxy{background:linear-gradient(160deg,#1a1147,#3d2196 50%,#7c3aed 110%);color:#fff}
+.th-nature{background:linear-gradient(160deg,#134e5e,#2d8b5c 50%,#a8e6a3 110%);color:#fff}
+.th-pastel{background:linear-gradient(160deg,#fbd0e0,#c9d6ff);color:#3730a3}
+.th-sport{background:linear-gradient(160deg,#dc2626,#f59e0b);color:#fff}
+.th-cyber{background:linear-gradient(160deg,#0a2540,#0891b2 50%,#06b6d4);color:#e0f7fa}
+/* ── DARK THEME: V2 Trading Card layout ─────────────────────── */
+.v2-front{display:flex;flex-direction:column;position:relative;padding:12px;height:100%;color:inherit}
+.v2-front::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 0%,rgba(255,255,255,.18),transparent 60%),radial-gradient(circle at 20% 100%,rgba(0,0,0,.25),transparent 60%);pointer-events:none}
+.v2-head{display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:1}
+.v2-seat{background:rgba(0,0,0,.32);color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:8px;letter-spacing:.06em;display:flex;align-items:center;gap:3px}
+.v2-theme-btn{background:rgba(0,0,0,.3);border:none;border-radius:8px;width:26px;height:26px;color:inherit;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;position:relative;z-index:1}
+.v2-photo{margin:10px auto 6px;width:72px;height:72px;border-radius:50%;border:3px solid rgba(255,255,255,.55);background:rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;overflow:hidden;position:relative;z-index:1;box-shadow:0 6px 18px rgba(0,0,0,.25);flex-shrink:0}
+.v2-photo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.v2-nick{text-align:center;font-size:21px;font-weight:800;line-height:1.05;position:relative;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.2)}
+.v2-name{text-align:center;font-size:9.5px;opacity:.85;margin-top:3px;line-height:1.3;position:relative;z-index:1}
+.v2-transport{margin-top:auto;align-self:center;display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,.32);font-size:10px;font-weight:600;padding:4px 10px;border-radius:12px;position:relative;z-index:1;max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v2-wm{position:absolute;bottom:8px;left:10px;width:22px;height:22px;border-radius:50%;overflow:hidden;z-index:1;opacity:.65}
+.v2-wm img{width:100%;height:100%;object-fit:cover}
+.v2-hint{position:absolute;bottom:10px;right:12px;font-size:14px;opacity:.6;z-index:1}
+/* ── LIGHT THEME: V3 Modern layout ──────────────────────────── */
+.v3-front{display:flex;flex-direction:column;height:100%;background:var(--surface);border:1px solid var(--border2,var(--border));position:relative}
+.v3-accent{height:88px;position:relative;flex-shrink:0;background:linear-gradient(135deg,var(--green-deep,#005c2a),var(--primary) 60%,var(--yellow) 130%)}
+.v3-accent::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 0%,rgba(255,255,255,.25),transparent 50%),radial-gradient(circle at 0% 100%,rgba(0,0,0,.18),transparent 50%);pointer-events:none}
+/* per-student accent colors */
+.v3-accent.debsirin{background:linear-gradient(135deg,#005c2a,#00803a 60%,#f4b500 130%)}
+.v3-accent.galaxy{background:linear-gradient(135deg,#1a1147,#3d2196 60%,#a855f7 130%)}
+.v3-accent.nature{background:linear-gradient(135deg,#134e5e,#2d8b5c 60%,#a8e6a3 130%)}
+.v3-accent.pastel{background:linear-gradient(135deg,#fbd0e0,#c9d6ff)}
+.v3-accent.sport{background:linear-gradient(135deg,#dc2626,#f59e0b)}
+.v3-accent.cyber{background:linear-gradient(135deg,#0a2540,#0891b2 60%,#06b6d4)}
+.v3-top{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;z-index:2}
+.v3-seat{background:rgba(255,255,255,.92);color:#0c1410;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:.04em}
+.v3-theme-btn{background:rgba(255,255,255,.2);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.3);border-radius:8px;width:26px;height:26px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;color:#fff}
+.v3-photo{position:absolute;top:57px;left:14px;width:62px;height:62px;border-radius:18px;background:var(--surface);border:3px solid var(--surface);box-shadow:0 6px 16px rgba(0,0,0,.15);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:var(--primary);z-index:3}
+.v3-photo img{width:100%;height:100%;object-fit:cover;border-radius:14px}
+.v3-body{padding:34px 14px 14px;display:flex;flex-direction:column;flex:1}
+.v3-nick{font-size:20px;font-weight:800;line-height:1.05;letter-spacing:-.01em;color:var(--text)}
+.v3-name{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.35;font-weight:500;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.v3-tags{margin-top:auto;display:flex;flex-wrap:wrap;gap:5px;padding-top:8px}
+.v3-tag{font-size:10px;font-weight:600;color:var(--muted);background:var(--surface2);padding:3px 8px;border-radius:8px;display:inline-flex;align-items:center;gap:4px}
+/* ── CARD BACK (adapts to both themes via CSS vars) ─────────── */
 .cb-inner{height:100%;padding:11px;display:flex;flex-direction:column;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)}
-.cb-head{font-size:11px;font-weight:700;color:var(--muted)}
+.cb-head{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:2px}
 .cb-row{display:flex;align-items:center;gap:6px;font-size:11px}
 .cb-icon{font-size:13px;width:18px;text-align:center;flex-shrink:0}
 .cb-val{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cb-locked{color:var(--muted);font-size:10px;font-style:italic}
 .cb-detail-btn{margin-top:auto;background:var(--primary-bg);color:var(--primary);border:1px solid rgba(74,222,128,.3);border-radius:8px;padding:6px;font-size:11px;font-weight:600;width:100%;transition:all .15s}
 .cb-detail-btn:hover{background:var(--primary);color:#fff}
-/* ── CARD LAYOUT: TRADING CARD (theme 2) ───────────────────── */
-.cf-h{flex-direction:row!important;align-items:center!important;padding:10px 10px 10px 12px!important;gap:10px!important}
-.cf-h .photo-wrap{width:60px;height:60px;flex-shrink:0;margin-bottom:0!important;border-width:2px}
-.cf-h .h-right{flex:1;display:flex;flex-direction:column;min-width:0}
-.cf-h .h-nick{font-size:17px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
-.cf-h .h-name{font-size:8.5px;opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
-.cf-h .h-id{font-size:8.5px;opacity:.5;margin-top:2px}
-.cf-h .h-bar{height:2px;background:rgba(255,255,255,.15);border-radius:1px;margin-top:8px}
-.cf-h .h-fill{height:100%;background:rgba(255,255,255,.55);border-radius:1px}
-.cf-h .h-transport{font-size:9px;opacity:.7;margin-top:6px}
-/* ── CARD LAYOUT: MODERN (theme 3) ─────────────────────────── */
-.cf-m{justify-content:center!important;gap:5px!important;padding:12px 10px!important}
-.cf-m .photo-wrap{width:78px;height:78px;margin-bottom:0!important;border-width:3px}
-.cf-m .m-line{width:32px;height:2px;background:rgba(255,255,255,.35);border-radius:1px}
-.cf-m .m-badge{font-size:9px;background:rgba(255,255,255,.12);padding:3px 11px;border-radius:10px;margin-top:2px}
-/* ── CARD LAYOUT: LIGHT (theme 4) ──────────────────────────── */
-.cf-l{flex-direction:row!important;align-items:center!important;padding:12px!important;gap:12px!important;background:var(--surface)!important;color:var(--text)!important}
-.cf-l .photo-wrap{width:68px;height:68px;flex-shrink:0;margin-bottom:0!important;border-color:var(--border)!important;background:var(--surface2)!important;color:var(--primary)!important}
-.cf-l .l-right{flex:1;display:flex;flex-direction:column;min-width:0}
-.cf-l .l-nick{font-size:17px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
-.cf-l .l-name{font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;opacity:.65;text-align:left}
-.cf-l .l-transport{font-size:9px;margin-top:8px;background:var(--surface2);padding:3px 9px;border-radius:10px;display:inline-flex;align-items:center;gap:4px;color:var(--muted)}
-.cf-l .cf-id{background:var(--surface2)!important;color:var(--muted)!important}
-.cf-l .cf-hint{color:var(--muted)}
 /* ── NO RESULTS ────────────────────────────────────────────── */
 .no-results{grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--muted)}
 .nr-emoji{font-size:40px;margin-bottom:12px}
@@ -360,11 +343,9 @@ input,select,textarea{font-family:'Prompt',sans-serif}
         <hr class="um-sep"/>
         <div class="um-section"><span class="lang-th">ธีม</span><span class="lang-en">Theme</span></div>
         <div class="theme-row">
-          <div class="th-swatch active" data-t="1" onclick="setTheme(1)" title="Yearbook">📚</div>
-          <div class="th-swatch" data-t="2" onclick="setTheme(2)" title="Trading Card">🃏</div>
-          <div class="th-swatch" data-t="3" onclick="setTheme(3)" title="Modern">✦</div>
-          <div class="th-swatch" data-t="4" onclick="setTheme(4)" title="Light">☀️</div>
-          <span style="font-size:10px;color:var(--muted);align-self:center;margin-left:4px" id="theme-label">Yearbook</span>
+          <div class="th-swatch active" data-t="1" onclick="setTheme(1)" title="Dark">🌙</div>
+          <div class="th-swatch" data-t="2" onclick="setTheme(2)" title="Light">☀️</div>
+          <span style="font-size:10px;color:var(--muted);align-self:center;margin-left:4px" id="theme-label">Dark</span>
         </div>
         <div class="um-section"><span class="lang-th">ภาษา</span><span class="lang-en">Language</span></div>
         <div class="lang-row">
@@ -906,71 +887,40 @@ function renderStudents() {
       ? `<img src="${CFG.LOGO_URL}" alt="" style="position:absolute;bottom:7px;left:7px;width:20px;height:20px;border-radius:50%;opacity:.55;object-fit:cover" onerror="this.style.display='none'"/>`
       : '';
 
-    // ── 4 CARD FRONT LAYOUTS ──────────────────────────────────
+    // ── CARD FRONT: 2 layouts (Dark=V2 / Light=V3) ──────────────
     let frontHTML;
     if (appTheme === '2') {
-      // TRADING CARD: photo kiri, info kanan, progress bar
-      const pct = Math.min(100, (parseInt(sid) % 30 + 1) / 30 * 100).toFixed(0);
+      // LIGHT — V3 Modern: accent header + straddle photo + clean body
       frontHTML = `
-        <div class="flip-front ${t.css}">
-          <div class="cf-inner cf-h">
-            <div class="cf-id">#${seat}</div>
-            <div class="photo-wrap">${photoHTML}</div>
-            <div class="h-right">
-              <div class="h-nick">${nickTh}</div>
-              <div class="h-name">${s.name_th || ''}</div>
-              <div class="h-id">ID: ${sid}</div>
-              <div class="h-bar"><div class="h-fill" style="width:${pct}%"></div></div>
-              <div class="h-transport">${tIcon} ${transport || '-'}</div>
+        <div class="flip-front v3-front">
+          <div class="v3-accent ${theme}">
+            <div class="v3-top">
+              <span class="v3-seat">${seat}</span>
+              <button class="v3-theme-btn" onclick="cycleTheme(event,'${sid}')">${t.emoji}</button>
             </div>
           </div>
-          <button class="cf-theme-btn" onclick="cycleTheme(event,'${sid}')" title="เปลี่ยนธีม">${t.emoji}</button>
-          <div class="cf-hint">↩</div>
-        </div>`;
-    } else if (appTheme === '3') {
-      // MODERN: ภาพกลาง ใหญ่ เส้นคั่น badge
-      frontHTML = `
-        <div class="flip-front ${t.css}">
-          <div class="cf-inner cf-m">
-            <div class="cf-id">#${seat}</div>
-            <button class="cf-theme-btn" onclick="cycleTheme(event,'${sid}')" title="เปลี่ยนธีม">${t.emoji}</button>
-            <div class="photo-wrap">${photoHTML}</div>
-            <div class="m-line"></div>
-            <div class="cf-nick">${nickTh}</div>
-            <div class="cf-name">${s.name_th || ''}</div>
-            <div class="m-badge">${tIcon} ${transport || 'MEP 2026'}</div>
+          <div class="v3-photo">${photoHTML}</div>
+          <div class="v3-body">
+            <div class="v3-nick">${nickTh}</div>
+            <div class="v3-name">${s.name_th || ''}${nickEn !== nickTh ? '<br/><span style="opacity:.65">'+nickEn+'</span>' : ''}</div>
+            <div class="v3-tags"><span class="v3-tag">${tIcon} ${transport || '-'}</span></div>
           </div>
-          ${logo}
-        </div>`;
-    } else if (appTheme === '4') {
-      // LIGHT: ใช้สี surface (ไม่ใช้ card theme color), horizontal
-      frontHTML = `
-        <div class="flip-front">
-          <div class="cf-inner cf-l">
-            <div class="cf-id">#${seat}</div>
-            <div class="photo-wrap">${photoHTML}</div>
-            <div class="l-right">
-              <div class="l-nick">${nickTh}</div>
-              <div class="l-name">${s.name_th || ''}</div>
-              <div class="l-transport">${tIcon} ${transport || '-'}</div>
-            </div>
-          </div>
-          <button class="cf-theme-btn" style="background:var(--surface2);color:var(--muted)" onclick="cycleTheme(event,'${sid}')" title="เปลี่ยนธีม">${t.emoji}</button>
-          <div class="cf-hint">↩</div>
         </div>`;
     } else {
-      // YEARBOOK (theme 1): layout เดิม vertical centered
+      // DARK — V2 Trading Card: full gradient bg, centered photo, nickname big
       frontHTML = `
         <div class="flip-front ${t.css}">
-          <div class="cf-inner">
-            <div class="cf-id">#${seat}</div>
-            <button class="cf-theme-btn" onclick="cycleTheme(event,'${sid}')" title="เปลี่ยนธีม">${t.emoji}</button>
-            <div class="photo-wrap">${photoHTML}</div>
-            <div class="cf-nick">${nickTh}</div>
-            <div class="cf-name">${s.name_th || ''}<br/><span style="opacity:.6">${nickEn !== nickTh ? nickEn : ''}</span></div>
-            <div class="cf-transport">${tIcon} ${transport || '-'}</div>
-            <div class="cf-hint">↩</div>
-            ${logo}
+          <div class="v2-front">
+            <div class="v2-head">
+              <span class="v2-seat">No.&thinsp;${seat}</span>
+              <button class="v2-theme-btn" onclick="cycleTheme(event,'${sid}')">${t.emoji}</button>
+            </div>
+            <div class="v2-photo">${photoHTML}</div>
+            <div class="v2-nick">${nickTh}</div>
+            <div class="v2-name">${s.name_th || ''}${nickEn !== nickTh ? '<br/><span style="opacity:.65">'+nickEn+'</span>' : ''}</div>
+            <div class="v2-transport">${tIcon} ${transport || '-'}</div>
+            ${CFG.LOGO_URL ? `<div class="v2-wm"><img src="${CFG.LOGO_URL}" alt="" onerror="this.style.display='none'"/></div>` : ''}
+            <div class="v2-hint">↻</div>
           </div>
         </div>`;
     }
@@ -1423,7 +1373,7 @@ function closeMenu() {
 }
 
 // ── THEME SWITCHER ────────────────────────────────────────────────
-const THEME_NAMES = { 1:'Yearbook', 2:'Trading Card', 3:'Modern', 4:'Light' };
+const THEME_NAMES = { 1:'Dark', 2:'Light' };
 function setTheme(n) {
   document.documentElement.setAttribute('data-theme', n);
   localStorage.setItem('mep-theme', n);
@@ -1445,9 +1395,10 @@ function setLang(lang) {
 
 // ── RESTORE SAVED PREFERENCES ─────────────────────────────────────
 (function restorePrefs() {
-  const t = localStorage.getItem('mep-theme');
+  let t = parseInt(localStorage.getItem('mep-theme') || '1');
+  if (t < 1 || t > 2) t = 1; // clamp: รองรับ 2 themes เท่านั้น
+  setTheme(t);
   const l = localStorage.getItem('mep-lang');
-  if (t) setTheme(parseInt(t));
   if (l) setLang(l);
 })();
 document.addEventListener('click', e => {
