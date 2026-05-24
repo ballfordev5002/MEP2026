@@ -310,9 +310,11 @@ input,select,textarea{font-family:'Prompt',sans-serif}
       <img id="school-logo-login" src="" alt="โรงเรียนเทพศิรินทร์" width="72" height="72" style="border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.15)" onerror="this.style.display='none';document.getElementById('login-logo-fb').style.display='block'"/>
       <span id="login-logo-fb" style="display:none;font-size:52px">📚</span>
     </div>
-    <div class="login-title">นามบัตรนักเรียน</div>
+    <div class="login-title"><span class="lang-th">นามบัตรนักเรียน</span><span class="lang-en">Student ID Card</span></div>
     <div style="font-size:13px;font-weight:600;color:var(--primary);margin-bottom:2px" id="login-school"></div>
-    <div class="login-sub" id="login-sub">กำลังโหลด...</div>
+    <div class="login-sub" id="login-sub"><span class="lang-th">กำลังโหลด...</span><span class="lang-en">Loading...</span></div>
+    <!-- error box แสดงเมื่อ login ล้มเหลว -->
+    <div id="login-error" style="display:none;background:rgba(220,38,38,.12);border:1px solid rgba(220,38,38,.35);border-radius:10px;padding:10px 14px;font-size:12px;color:#dc2626;margin-bottom:8px;word-break:break-all;text-align:left"></div>
     <button class="google-btn" onclick="signIn()">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google"/>
       <span class="lang-th">เข้าสู่ระบบด้วย Google</span><span class="lang-en">Sign in with Google</span>
@@ -608,26 +610,33 @@ firebase.initializeApp(FIREBASE_CONFIG);
 const auth     = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
 
-auth.onAuthStateChanged(async user => {
-  if (user) {
-    S.user = user;
-    await initUser();
-  } else {
-    // ตรวจ redirect result ก่อน (กรณีกลับจาก Google Sign-In)
-    try {
-      const result = await auth.getRedirectResult();
-      if (!result.user) {
+// ── AUTH FLOW (Firebase v10 + GitHub Pages) ────────────────────────
+// ต้องเรียก getRedirectResult() แยกก่อน onAuthStateChanged
+// เพราะ v10 อาจ consume redirect result ก่อน callback ทำงาน
+auth.getRedirectResult()
+  .then(result => {
+    // ถ้า redirect สำเร็จ Firebase จะ fire onAuthStateChanged(user) เองอัตโนมัติ
+    if (result?.user) return; // รอ onAuthStateChanged
+    // ไม่มี redirect ที่กำลังประมวลผล → setup listener ตามปกติ
+  })
+  .catch(e => {
+    const errBox = document.getElementById('login-error');
+    if (errBox) { errBox.textContent = '❌ Redirect error: ' + e.message; errBox.style.display = 'block'; }
+    showScreen('s-login');
+    hide('loading');
+  })
+  .finally(() => {
+    // setup listener หลังจาก redirect ถูก process แล้วเท่านั้น
+    auth.onAuthStateChanged(async user => {
+      if (user) {
+        S.user = user;
+        await initUser();
+      } else {
         showScreen('s-login');
         hide('loading');
       }
-      // ถ้ามี user จาก redirect → onAuthStateChanged จะ fire ซ้ำ → initUser() อัตโนมัติ
-    } catch(e) {
-      toast('❌ ' + (e.message || 'Login ไม่สำเร็จ'));
-      showScreen('s-login');
-      hide('loading');
-    }
-  }
-});
+    });
+  });
 
 async function signIn() {
   try {
@@ -698,6 +707,12 @@ async function initUser() {
     // ข้ามหน้าเลือกห้อง → เปิดห้อง 1/4 โดยตรง
     await openRoom(4);
   } catch(e) {
+    // แสดง error บนหน้า login ชัดๆ ไม่ใช่แค่ toast
+    const errBox = document.getElementById('login-error');
+    if (errBox) {
+      errBox.textContent = '❌ ' + (e.message || String(e));
+      errBox.style.display = 'block';
+    }
     toast('❌ ' + e.message);
     showScreen('s-login');
   } finally {
