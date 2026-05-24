@@ -639,11 +639,25 @@ auth.getRedirectResult()
   });
 
 async function signIn() {
+  const errBox = document.getElementById('login-error');
+  if (errBox) errBox.style.display = 'none';
   try {
-    // ใช้ Redirect แทน Popup เพราะ GitHub Pages block popup (COOP header)
-    await auth.signInWithRedirect(provider);
+    // ลอง Popup ก่อน (popup ไม่ผ่าน mep2026.firebaseapp.com → ไม่โดน Chrome Bounce Tracking ลบ state)
+    await auth.signInWithPopup(provider);
+    // Popup สำเร็จ → onAuthStateChanged จะ fire เอง ไม่ต้อง reload
   } catch(e) {
-    toast('❌ ' + e.message);
+    if (e.code === 'auth/popup-blocked' || e.code === 'auth/cancelled-popup-request' || e.code === 'auth/popup-closed-by-user') {
+      // Popup ถูก block → fallback ใช้ redirect
+      try {
+        await auth.signInWithRedirect(provider);
+      } catch(e2) {
+        if (errBox) { errBox.textContent = '❌ ' + e2.message; errBox.style.display = 'block'; }
+        toast('❌ ' + e2.message);
+      }
+    } else {
+      if (errBox) { errBox.textContent = '❌ ' + e.message; errBox.style.display = 'block'; }
+      toast('❌ ' + e.message);
+    }
   }
 }
 
