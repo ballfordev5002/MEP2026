@@ -85,8 +85,11 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .th-swatch[data-t="1"]{background:#16321f}
 .th-swatch[data-t="2"]{background:#f0f7f1;border-color:#c8d5ca}
 .lang-row{display:flex;gap:4px;padding:4px 12px 10px}
-.lang-btn{flex:1;background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.lang-btn{flex:1;background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
 .lang-btn.active{background:var(--primary-bg);border-color:var(--primary);color:var(--primary)}
+.flag-badge{display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;border-radius:3px;padding:1px 4px;letter-spacing:.3px;flex-shrink:0}
+.flag-th{background:#A51931;color:#fff}  /* สีธงไทย: แดง */
+.flag-en{background:#012169;color:#fff}  /* สีธงอังกฤษ: น้ำเงิน */
 /* hide EN text in TH mode, hide TH text in EN mode */
 [data-lang="th"] .lang-en{display:none}
 [data-lang="en"] .lang-th{display:none}
@@ -210,6 +213,10 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .mf-label{font-size:9.5px;color:var(--muted)}
 .mf-val{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mf-locked{color:var(--muted);font-style:italic;font-size:11px}
+.mf-link{color:var(--primary);text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.mf-link:active{opacity:.7}
+.cb-link{color:var(--primary);text-decoration:none;font-weight:600}
+.cb-link:active{opacity:.7}
 .transport-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border-radius:20px;padding:8px 14px;font-size:13px}
 /* edit button in modal */
 .modal-edit-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px;background:var(--primary-bg);color:var(--primary);border:1px solid rgba(74,222,128,.3);border-radius:10px;font-size:13px;font-weight:600;margin-top:12px;transition:all .15s}
@@ -336,8 +343,8 @@ input,select,textarea{font-family:'Prompt',sans-serif}
       </div>
       <div class="lp-sep"></div>
       <div class="lp-group">
-        <button class="lang-btn" id="lp-lang-th" onclick="setLang('th')">🇹🇭 ไทย</button>
-        <button class="lang-btn" id="lp-lang-en" onclick="setLang('en')">🇬🇧 EN</button>
+        <button class="lang-btn" id="lp-lang-th" onclick="setLang('th')"><span class="flag-badge flag-th">TH</span> ไทย</button>
+        <button class="lang-btn" id="lp-lang-en" onclick="setLang('en')"><span class="flag-badge flag-en">EN</span> English</button>
       </div>
     </div>
   </div>
@@ -373,8 +380,8 @@ input,select,textarea{font-family:'Prompt',sans-serif}
         </div>
         <div class="um-section"><span class="lang-th">ภาษา</span><span class="lang-en">Language</span></div>
         <div class="lang-row">
-          <button class="lang-btn active" id="lang-th-btn" onclick="setLang('th')">🇹🇭 ไทย</button>
-          <button class="lang-btn" id="lang-en-btn" onclick="setLang('en')">🇬🇧 English</button>
+          <button class="lang-btn active" id="lang-th-btn" onclick="setLang('th')"><span class="flag-badge flag-th">TH</span> ไทย</button>
+          <button class="lang-btn" id="lang-en-btn" onclick="setLang('en')"><span class="flag-badge flag-en">EN</span> English</button>
         </div>
         <hr class="um-sep"/>
         <button class="um-item danger" onclick="signOut()">
@@ -1031,8 +1038,8 @@ function renderStudents() {
         <div class="flip-back">
           <div class="cb-inner">
             <div class="cb-head">${nameEn}</div>
-            <div class="cb-row"><span class="cb-icon">📞</span><span class="cb-val ${!canPhone?'cb-locked':''}">${canPhone?formatPhone(s.student_phone):'🔒 ไม่มีสิทธิ์'}</span></div>
-            <div class="cb-row"><span class="cb-icon">${LINE_SVG}</span><span class="cb-val ${!canLine?'cb-locked':''}">${canLine?(s.student_line||'-'):'🔒 ไม่มีสิทธิ์'}</span></div>
+            <div class="cb-row"><span class="cb-icon">📞</span><span class="cb-val ${!canPhone?'cb-locked':''}">${canPhone?(phoneHref(s.student_phone)?`<a class="cb-link" href="${phoneHref(s.student_phone)}">${formatPhone(s.student_phone)}</a>`:formatPhone(s.student_phone)):'🔒 ไม่มีสิทธิ์'}</span></div>
+            <div class="cb-row"><span class="cb-icon">${LINE_SVG}</span><span class="cb-val ${!canLine?'cb-locked':''}">${canLine?(s.student_line&&lineHref(s.student_line)?`<a class="cb-link" href="${lineHref(s.student_line)}">${s.student_line}</a>`:(s.student_line||'-')):'🔒 ไม่มีสิทธิ์'}</span></div>
             <div class="cb-row"><span class="cb-icon">👨‍👩‍👧</span><span class="cb-val ${!canP1?'cb-locked':''}">${canP1?(s.parent1_name||'-'):'🔒 ไม่มีสิทธิ์'}</span></div>
             <div class="cb-row"><span class="cb-icon">🚌</span><span class="cb-val">${tIcon} ${transport||'-'}</span></div>
             <button class="cb-detail-btn" onclick="openModal('${sid}')">ดูข้อมูลเต็ม →</button>
@@ -1090,11 +1097,15 @@ function modalSection(title, fields) {
   fields.forEach(f => {
     const div = document.createElement('div');
     div.className = 'mf';
+    const displayVal = f.locked ? '🔒 ไม่มีสิทธิ์'
+      : (f.href && f.val && f.val !== '-')
+        ? `<a class="mf-link" href="${f.href}">${f.val}</a>`
+        : (f.val || '-');
     div.innerHTML = `
       <span class="mf-icon">${f.icon}</span>
       <div class="mf-content">
         <div class="mf-label">${f.label}</div>
-        <div class="mf-val ${f.locked ? 'mf-locked' : ''}">${f.locked ? '🔒 ไม่มีสิทธิ์' : (f.val || '-')}</div>
+        <div class="mf-val ${f.locked ? 'mf-locked' : ''}">${displayVal}</div>
       </div>`;
     sec.appendChild(div);
   });
@@ -1410,9 +1421,9 @@ function _populateModal(s) {
   body.innerHTML = '';
   body.appendChild(modalSection('ข้อมูลนักเรียน', [
     { icon:'🪪', label:'รหัสนักเรียน', val: s.student_id },
-    { icon:'📞', label:'เบอร์โทร',     val: formatPhone(s.student_phone), locked: s.student_phone === null },
-    { icon:LINE_SVG, label:'LINE ID',    val: s.student_line,  locked: s.student_line === null },
-    { icon:'✉️', label:'อีเมล',        val: s.student_email, locked: s.student_email === null },
+    { icon:'📞', label:'เบอร์โทร',     val: formatPhone(s.student_phone), href: phoneHref(s.student_phone), locked: s.student_phone === null },
+    { icon:LINE_SVG, label:'LINE ID',   val: s.student_line,  href: lineHref(s.student_line),               locked: s.student_line === null },
+    { icon:'✉️', label:'อีเมล',        val: s.student_email, href: s.student_email ? 'mailto:'+s.student_email : null, locked: s.student_email === null },
   ]));
   if (s.address !== null) {
     body.appendChild(modalSection('ที่อยู่ปัจจุบัน', [
@@ -1422,9 +1433,9 @@ function _populateModal(s) {
   if (s.parent1_name !== null || s.parent1_phone !== null) {
     body.appendChild(modalSection('ข้อมูลผู้ปกครอง', [
       { icon:'👨‍👩‍👧', label:'ผปค 1',       val: s.parent1_name  || '-' },
-      { icon:'📞',   label:'เบอร์ ผปค 1', val: formatPhone(s.parent1_phone) },
+      { icon:'📞',   label:'เบอร์ ผปค 1', val: formatPhone(s.parent1_phone), href: phoneHref(s.parent1_phone) },
       { icon:'👨‍👩‍👦', label:'ผปค 2',       val: s.parent2_name  || '-' },
-      { icon:'📞',   label:'เบอร์ ผปค 2', val: formatPhone(s.parent2_phone) },
+      { icon:'📞',   label:'เบอร์ ผปค 2', val: formatPhone(s.parent2_phone), href: phoneHref(s.parent2_phone) },
     ]));
   } else {
     const lock = document.createElement('div');
@@ -1454,11 +1465,21 @@ function toggle(id, show)     { document.getElementById(id)?.classList.toggle('h
 function setText(id, txt)     { const el = document.getElementById(id); if (el) el.textContent = txt; }
 function formatPhone(val) {
   if (val === null || val === undefined || val === '') return '-';
-  // strip ทุกอย่างที่ไม่ใช่ตัวเลข → normalize ก่อน format
   let d = val.toString().replace(/\D/g, '');
-  if (d.length === 9) d = '0' + d;   // เติม 0 หน้าถ้า Sheets กินไป
-  if (d.length === 10) return d.slice(0,2) + '-' + d.slice(2,6) + '-' + d.slice(6); // 08-1234-5678
-  return val.toString();             // รูปแบบอื่น → แสดงตามเดิม
+  if (d.length === 9) d = '0' + d;
+  if (d.length === 10) return d.slice(0,2) + '-' + d.slice(2,6) + '-' + d.slice(6);
+  return val.toString();
+}
+function phoneHref(val) {
+  if (!val && val !== 0) return null;
+  let d = val.toString().replace(/\D/g, '');
+  if (d.length === 9) d = '0' + d;
+  return d.length >= 9 ? 'tel:' + d : null;
+}
+function lineHref(val) {
+  if (!val) return null;
+  const id = val.toString().trim();
+  return id ? 'line://ti/p/~' + encodeURIComponent(id) : null;
 }
 function setTitleBi(id, th, en) {
   const el = document.getElementById(id);
