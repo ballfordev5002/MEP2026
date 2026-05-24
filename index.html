@@ -211,7 +211,7 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .mf-icon{font-size:15px;width:22px;text-align:center;flex-shrink:0}
 .mf-content{flex:1;min-width:0}
 .mf-label{font-size:9.5px;color:var(--muted)}
-.mf-val{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mf-val{font-size:13px;font-weight:500;word-break:break-word}
 .mf-locked{color:var(--muted);font-style:italic;font-size:11px}
 .mf-link{color:var(--primary);text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:4px}
 .mf-link:active{opacity:.7}
@@ -498,8 +498,8 @@ input,select,textarea{font-family:'Prompt',sans-serif}
           <th>Field</th>
           <th>👑 Admin</th>
           <th>🏫 Teacher</th>
-          <th>👨‍👩‍👧 ผปค (ลูก)</th>
-          <th>👥 ผปค (อื่น)</th>
+          <th>👨‍👩‍👧 ผู้ปกครอง (ลูก)</th>
+          <th>👥 ผู้ปกครอง (อื่น)</th>
           <th>🎒 นักเรียน</th>
         </tr>
       </thead>
@@ -540,7 +540,7 @@ input,select,textarea{font-family:'Prompt',sans-serif}
         <select class="form-select" id="rf-role" onchange="onRoleChange()">
           <option value="admin">👑 Admin</option>
           <option value="teacher">🏫 Teacher</option>
-          <option value="parent">👨‍👩‍👧 ผปค (Parent)</option>
+          <option value="parent">👨‍👩‍👧 ผู้ปกครอง</option>
           <option value="student">🎒 นักเรียน</option>
         </select>
       </div>
@@ -773,7 +773,7 @@ function updateTopbarUser() {
   setText('u-av', initial);
   setText('u-name', u.displayName || u.email);
   const badge = document.getElementById('u-role');
-  const ROLE_LABEL = { admin:'Admin', teacher:'Teacher', parent:'ผปค', student:'นักเรียน', none:'ไม่ได้ลงทะเบียน' };
+  const ROLE_LABEL = { admin:'Admin', teacher:'Teacher', parent:'ผู้ปกครอง', student:'นักเรียน', none:'ไม่ได้ลงทะเบียน' };
   const ROLE_CLS   = { admin:'rb-admin', teacher:'rb-teacher', parent:'rb-parent', student:'rb-student', none:'rb-none' };
   badge.textContent = ROLE_LABEL[info.role] || info.role;
   badge.className   = 'role-badge ' + (ROLE_CLS[info.role] || 'rb-none');
@@ -1179,7 +1179,7 @@ async function loadRoles() {
 
 function renderRoles() {
   const body = document.getElementById('roles-body');
-  const ROLE_LABEL = { admin:'👑 Admin', teacher:'🏫 Teacher', parent:'👨‍👩‍👧 ผปค', student:'🎒 นักเรียน' };
+  const ROLE_LABEL = { admin:'👑 Admin', teacher:'🏫 Teacher', parent:'👨‍👩‍👧 ผู้ปกครอง', student:'🎒 นักเรียน' };
   body.innerHTML = S.roles.map(r => `
     <tr>
       <td>${r.email||''}</td>
@@ -1252,8 +1252,8 @@ const FIELD_LABELS = {
   nickname_th:'ชื่อเล่น (ไทย)', nickname_en:'ชื่อเล่น (อังกฤษ)', transport:'การเดินทาง',
   room:'ห้องเรียน', student_phone:'เบอร์โทรนักเรียน', student_line:'LINE ID',
   student_email:'อีเมลนักเรียน', address:'ที่อยู่ปัจจุบัน',
-  parent1_name:'ชื่อ ผปค 1', parent1_phone:'เบอร์ ผปค 1', parent1_email:'อีเมล ผปค 1',
-  parent2_name:'ชื่อ ผปค 2', parent2_phone:'เบอร์ ผปค 2',
+  parent1_name:'ชื่อผู้ปกครอง 1', parent1_phone:'เบอร์ผู้ปกครอง 1', parent1_email:'อีเมลผู้ปกครอง 1',
+  parent2_name:'ชื่อผู้ปกครอง 2', parent2_phone:'เบอร์ผู้ปกครอง 2',
 };
 const FIELD_GROUPS = {
   'ข้อมูลพื้นฐาน':     ['seat_no','student_id','photo_url','theme','name_th','name_en','nickname_th','nickname_en','transport','room'],
@@ -1432,10 +1432,10 @@ function _populateModal(s) {
   }
   if (s.parent1_name !== null || s.parent1_phone !== null) {
     body.appendChild(modalSection('ข้อมูลผู้ปกครอง', [
-      { icon:'👨‍👩‍👧', label:'ผปค 1',       val: s.parent1_name  || '-' },
-      { icon:'📞',   label:'เบอร์ ผปค 1', val: formatPhone(s.parent1_phone), href: phoneHref(s.parent1_phone) },
-      { icon:'👨‍👩‍👦', label:'ผปค 2',       val: s.parent2_name  || '-' },
-      { icon:'📞',   label:'เบอร์ ผปค 2', val: formatPhone(s.parent2_phone), href: phoneHref(s.parent2_phone) },
+      { icon:'👨‍👩‍👧', label:'ผู้ปกครอง 1',       val: s.parent1_name  || '-' },
+      { icon:'📞',   label:'เบอร์ผู้ปกครอง 1', val: formatPhone(s.parent1_phone), href: phoneHref(s.parent1_phone) },
+      { icon:'👨‍👩‍👦', label:'ผู้ปกครอง 2',       val: s.parent2_name  || '-' },
+      { icon:'📞',   label:'เบอร์ผู้ปกครอง 2', val: formatPhone(s.parent2_phone), href: phoneHref(s.parent2_phone) },
     ]));
   } else {
     const lock = document.createElement('div');
