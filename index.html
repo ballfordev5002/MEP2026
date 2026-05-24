@@ -93,6 +93,10 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .login-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
 .google-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#374151;border:none;border-radius:12px;padding:13px 20px;font-size:14px;font-weight:500;width:100%;transition:all .2s}
 .google-btn:hover{background:#f3f4f6;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.login-prefs{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.lp-group{display:flex;gap:6px;align-items:center}
+.lp-sep{width:1px;height:24px;background:var(--border)}
+.lp-swatch{width:30px;height:30px;font-size:14px}
 /* ── CLASSES ───────────────────────────────────────────────── */
 .classes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;padding:20px;max-width:720px;margin:0 auto;width:100%}
 .class-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px 12px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
@@ -313,6 +317,18 @@ input,select,textarea{font-family:'Prompt',sans-serif}
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google"/>
       <span class="lang-th">เข้าสู่ระบบด้วย Google</span><span class="lang-en">Sign in with Google</span>
     </button>
+    <!-- Theme + Language toggles บน login page -->
+    <div class="login-prefs">
+      <div class="lp-group">
+        <div class="th-swatch lp-swatch active" data-t="1" onclick="setTheme(1)" title="Dark">🌙</div>
+        <div class="th-swatch lp-swatch" data-t="2" onclick="setTheme(2)" title="Light">☀️</div>
+      </div>
+      <div class="lp-sep"></div>
+      <div class="lp-group">
+        <button class="lang-btn" id="lp-lang-th" onclick="setLang('th')">🇹🇭 ไทย</button>
+        <button class="lang-btn" id="lp-lang-en" onclick="setLang('en')">🇬🇧 EN</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1403,8 +1419,12 @@ function setLang(lang) {
   document.documentElement.setAttribute('data-lang', lang);
   document.documentElement.setAttribute('lang', lang);
   localStorage.setItem('mep-lang', lang);
+  // topbar menu buttons
   document.getElementById('lang-th-btn')?.classList.toggle('active', lang === 'th');
   document.getElementById('lang-en-btn')?.classList.toggle('active', lang === 'en');
+  // login page buttons
+  document.getElementById('lp-lang-th')?.classList.toggle('active', lang === 'th');
+  document.getElementById('lp-lang-en')?.classList.toggle('active', lang === 'en');
 }
 
 // ── RESTORE SAVED PREFERENCES ─────────────────────────────────────
