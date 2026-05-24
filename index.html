@@ -11,9 +11,9 @@
 /* ── RESET & VARIABLES ─────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0f172a;--surface:#1e293b;--surface2:#293548;--border:rgba(255,255,255,.08);
-  --text:#f1f5f9;--muted:#94a3b8;--primary:#818cf8;--primary-bg:rgba(129,140,248,.15);
-  --green:#34d399;--yellow:#fbbf24;--red:#f87171;--r:16px;--r-sm:10px;
+  --bg:#0a1a10;--surface:#122318;--surface2:#1a3024;--border:rgba(255,255,255,.09);
+  --text:#f1f5f9;--muted:#86a98f;--primary:#4ade80;--primary-bg:rgba(74,222,128,.15);
+  --accent:#fbbf24;--green:#4ade80;--yellow:#fbbf24;--red:#f87171;--r:16px;--r-sm:10px;
 }
 html{font-size:16px}
 body{font-family:'Prompt',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
@@ -41,7 +41,7 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .rb-admin{background:rgba(239,68,68,.2);color:#f87171}
 .rb-teacher{background:rgba(251,191,36,.2);color:#fbbf24}
 .rb-parent{background:rgba(52,211,153,.2);color:#34d399}
-.rb-student{background:rgba(129,140,248,.2);color:#818cf8}
+.rb-student{background:rgba(74,222,128,.2);color:#4ade80}
 .rb-none{background:var(--surface2);color:var(--muted)}
 /* dropdown menu */
 .user-menu{position:absolute;top:100%;right:0;margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:12px;min-width:160px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.4);z-index:200}
@@ -111,7 +111,7 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .cb-icon{font-size:13px;width:18px;text-align:center;flex-shrink:0}
 .cb-val{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cb-locked{color:var(--muted);font-size:10px;font-style:italic}
-.cb-detail-btn{margin-top:auto;background:var(--primary-bg);color:var(--primary);border:1px solid rgba(129,140,248,.3);border-radius:8px;padding:6px;font-size:11px;font-weight:600;width:100%;transition:all .15s}
+.cb-detail-btn{margin-top:auto;background:var(--primary-bg);color:var(--primary);border:1px solid rgba(74,222,128,.3);border-radius:8px;padding:6px;font-size:11px;font-weight:600;width:100%;transition:all .15s}
 .cb-detail-btn:hover{background:var(--primary);color:#fff}
 /* ── NO RESULTS ────────────────────────────────────────────── */
 .no-results{grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--muted)}
@@ -140,7 +140,7 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .mf-locked{color:var(--muted);font-style:italic;font-size:11px}
 .transport-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border-radius:20px;padding:8px 14px;font-size:13px}
 /* edit button in modal */
-.modal-edit-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px;background:var(--primary-bg);color:var(--primary);border:1px solid rgba(129,140,248,.3);border-radius:10px;font-size:13px;font-weight:600;margin-top:12px;transition:all .15s}
+.modal-edit-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px;background:var(--primary-bg);color:var(--primary);border:1px solid rgba(74,222,128,.3);border-radius:10px;font-size:13px;font-weight:600;margin-top:12px;transition:all .15s}
 .modal-edit-btn:hover{background:var(--primary);color:#fff}
 /* ── LOG SCREEN ────────────────────────────────────────────── */
 .log-filter{display:flex;gap:8px;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap}
@@ -152,7 +152,7 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .log-table tr:hover td{background:var(--surface2)}
 .log-action{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;display:inline-block}
 .la-login{background:rgba(52,211,153,.15);color:#34d399}
-.la-view{background:rgba(129,140,248,.15);color:#818cf8}
+.la-view{background:rgba(74,222,128,.15);color:#4ade80}
 .la-edit{background:rgba(251,191,36,.15);color:#fbbf24}
 /* ── ROLES SCREEN ──────────────────────────────────────────── */
 .admin-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border)}
