@@ -119,9 +119,9 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .tf-btn:hover{border-color:var(--primary);color:var(--primary)}
 .tf-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 /* ── STUDENTS GRID ─────────────────────────────────────────── */
-.students-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:12px;padding:14px;overflow-y:auto}
+.students-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px;padding:16px;overflow-y:auto}
 /* ── FLIP CARD ─────────────────────────────────────────────── */
-.flip-wrap{perspective:1200px;height:260px}
+.flip-wrap{perspective:1200px;height:295px}
 .flip-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1);cursor:pointer}
 .flip-wrap.flipped .flip-inner{transform:rotateY(180deg)}
 .flip-front,.flip-back{position:absolute;inset:0;border-radius:var(--r);backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
@@ -161,9 +161,10 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .v3-top{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;z-index:2}
 .v3-seat{background:rgba(255,255,255,.92);color:#0c1410;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:.04em}
 .v3-theme-btn{background:rgba(255,255,255,.2);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.3);border-radius:8px;width:26px;height:26px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;color:#fff}
-.v3-photo{position:absolute;top:57px;left:14px;width:62px;height:62px;border-radius:18px;background:var(--surface);border:3px solid var(--surface);box-shadow:0 6px 16px rgba(0,0,0,.15);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:var(--primary);z-index:3}
+/* photo อยู่ใน .v3-accent → position relative to accent (88px) */
+.v3-photo{position:absolute;bottom:-28px;left:14px;width:66px;height:66px;border-radius:18px;background:var(--surface);border:3px solid var(--surface);box-shadow:0 6px 16px rgba(0,0,0,.2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:var(--primary);z-index:3}
 .v3-photo img{width:100%;height:100%;object-fit:cover;border-radius:14px}
-.v3-body{padding:34px 14px 14px;display:flex;flex-direction:column;flex:1}
+.v3-body{padding:42px 14px 12px;display:flex;flex-direction:column;flex:1}
 .v3-nick{font-size:20px;font-weight:800;line-height:1.05;letter-spacing:-.01em;color:var(--text)}
 .v3-name{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.35;font-weight:500;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .v3-tags{margin-top:auto;display:flex;flex-wrap:wrap;gap:5px;padding-top:8px}
@@ -287,12 +288,13 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .lookup-not-found{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;color:var(--muted);font-size:13px}
 /* ── RESPONSIVE ────────────────────────────────────────────── */
 @media(max-width:480px){
-  .students-grid{grid-template-columns:repeat(2,1fr);gap:8px;padding:10px}
-  .flip-wrap{height:205px}
-  .cf-nick{font-size:17px}
+  .students-grid{grid-template-columns:repeat(2,1fr);gap:10px;padding:12px}
+  .flip-wrap{height:240px}
+  .v2-nick,.v3-nick{font-size:17px}
 }
 @media(min-width:768px){
-  .students-grid{grid-template-columns:repeat(auto-fill,minmax(162px,1fr))}
+  .students-grid{grid-template-columns:repeat(auto-fill,minmax(185px,1fr))}
+  .flip-wrap{height:310px}
 }
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:4px}
@@ -337,7 +339,6 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 <!-- ─── TOPBAR (shared) ──────────────────────────────────────── -->
 <div id="topbar" class="hidden">
   <div class="tb-left">
-    <button class="tb-back hidden" id="btn-back" onclick="goBack()">‹</button>
     <div>
       <div class="tb-title" id="tb-title">นามบัตรนักเรียน</div>
       <div class="tb-sub" id="tb-sub">เทพศิรินทร์ · ม.1 MEP 2026</div>
@@ -345,9 +346,15 @@ input,select,textarea{font-family:'Prompt',sans-serif}
   </div>
   <div class="tb-right">
     <div class="admin-nav hidden" id="admin-nav">
-      <button class="adm-btn" onclick="showAdminScreen('s-log')">📋 Log</button>
-      <button class="adm-btn" onclick="showAdminScreen('s-roles')">👥 Roles</button>
-      <button class="adm-btn" onclick="showAdminScreen('s-permissions')">🔐 Perms</button>
+      <button class="adm-btn" onclick="showAdminScreen('s-log')">
+        <span class="lang-th">📋 Log</span><span class="lang-en">📋 Log</span>
+      </button>
+      <button class="adm-btn" onclick="showAdminScreen('s-roles')">
+        <span class="lang-th">👥 บทบาท</span><span class="lang-en">👥 Roles</span>
+      </button>
+      <button class="adm-btn" onclick="showAdminScreen('s-permissions')">
+        <span class="lang-th">🔐 สิทธิ์</span><span class="lang-en">🔐 Perms</span>
+      </button>
     </div>
     <button class="refresh-btn hidden" id="refresh-btn" onclick="refreshCurrent()" title="รีเฟรชข้อมูล">↻</button>
     <div class="user-chip" onclick="toggleMenu()">
@@ -949,19 +956,19 @@ function renderStudents() {
     // ── CARD FRONT: 2 layouts (Dark=V2 / Light=V3) ──────────────
     let frontHTML;
     if (appTheme === '2') {
-      // LIGHT — V3 Modern: accent header + straddle photo + clean body
+      // LIGHT — V3 Modern: accent header + straddle photo (inside accent) + clean body
       frontHTML = `
         <div class="flip-front v3-front">
           <div class="v3-accent ${theme}">
             <div class="v3-top">
-              <span class="v3-seat">${seat}</span>
+              <span class="v3-seat">No. ${seat}</span>
               <button class="v3-theme-btn" onclick="cycleTheme(event,'${sid}')">${t.emoji}</button>
             </div>
+            <div class="v3-photo">${photoHTML}</div>
           </div>
-          <div class="v3-photo">${photoHTML}</div>
           <div class="v3-body">
             <div class="v3-nick">${nickTh}</div>
-            <div class="v3-name">${s.name_th || ''}${nickEn !== nickTh ? '<br/><span style="opacity:.65">'+nickEn+'</span>' : ''}</div>
+            <div class="v3-name">${s.name_th || ''}${nickEn !== nickTh ? ' · <span style="opacity:.6">'+nickEn+'</span>' : ''}</div>
             <div class="v3-tags"><span class="v3-tag">${tIcon} ${transport || '-'}</span></div>
           </div>
         </div>`;
