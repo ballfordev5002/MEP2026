@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" data-theme="1" data-lang="th">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
@@ -10,10 +10,39 @@
 <style>
 /* ── RESET & VARIABLES ─────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0a1a10;--surface:#122318;--surface2:#1a3024;--border:rgba(255,255,255,.09);
-  --text:#f1f5f9;--muted:#86a98f;--primary:#4ade80;--primary-bg:rgba(74,222,128,.15);
-  --accent:#fbbf24;--green:#4ade80;--yellow:#fbbf24;--red:#f87171;--r:16px;--r-sm:10px;
+:root{--r:16px;--r-sm:10px;}
+
+/* ── THEME 1: Yearbook (Dark Classic) ──────────────────────── */
+[data-theme="1"]{
+  --bg:#0c1410;--surface:#15211a;--surface2:#1c2e22;--border:rgba(255,255,255,.08);
+  --text:#f1f7ed;--muted:#8fb39b;
+  --primary:#00c853;--primary-bg:rgba(0,200,83,.15);
+  --accent:#c89211;--yellow:#c89211;--red:#f87171;
+  --login-bg:linear-gradient(135deg,#061008 0%,#132218 50%,#061008 100%);
+}
+/* ── THEME 2: Trading Card (Vibrant) ───────────────────────── */
+[data-theme="2"]{
+  --bg:#071812;--surface:#0e2218;--surface2:#152d20;--border:rgba(255,255,255,.10);
+  --text:#f0faf4;--muted:#7ab890;
+  --primary:#00e676;--primary-bg:rgba(0,230,118,.12);
+  --accent:#fbb040;--yellow:#fbb040;--red:#ff6b6b;
+  --login-bg:linear-gradient(135deg,#040e0a 0%,#0e2218 50%,#040e0a 100%);
+}
+/* ── THEME 3: Modern Emerald (Elegant) ─────────────────────── */
+[data-theme="3"]{
+  --bg:#05140c;--surface:#0c2316;--surface2:#122d1d;--border:rgba(255,255,255,.07);
+  --text:#ecf8f0;--muted:#6aaa80;
+  --primary:#00803a;--primary-bg:rgba(0,128,58,.15);
+  --accent:#f4b500;--yellow:#f4b500;--red:#f87171;
+  --login-bg:linear-gradient(135deg,#030d07 0%,#0c2316 50%,#030d07 100%);
+}
+/* ── THEME 4: Light Clean ───────────────────────────────────── */
+[data-theme="4"]{
+  --bg:#f8faf8;--surface:#ffffff;--surface2:#f0f7f1;--border:rgba(0,0,0,.08);
+  --text:#111827;--muted:#6b7280;
+  --primary:#16a34a;--primary-bg:rgba(22,163,74,.10);
+  --accent:#d97706;--yellow:#d97706;--red:#dc2626;
+  --login-bg:linear-gradient(135deg,#f0fdf4 0%,#fefce8 50%,#f0fdf4 100%);
 }
 html{font-size:16px}
 body{font-family:'Prompt',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
@@ -53,9 +82,27 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .admin-nav{display:flex;gap:6px}
 .adm-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 10px;font-size:11px;transition:all .15s}
 .adm-btn:hover,.adm-btn.active{border-color:var(--primary);color:var(--primary);background:var(--primary-bg)}
+.refresh-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;width:32px;height:32px;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;line-height:1}
+.refresh-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-bg)}
+.refresh-btn.spinning{animation:spin .6s linear infinite;color:var(--primary)}
+/* ── THEME & LANG CONTROLS ───────────────────────────────────── */
+.um-section{padding:6px 10px 2px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.theme-row{display:flex;gap:6px;padding:8px 12px}
+.th-swatch{width:24px;height:24px;border-radius:8px;border:2px solid transparent;cursor:pointer;transition:all .15s;flex-shrink:0}
+.th-swatch:hover{transform:scale(1.15)}
+.th-swatch.active{border-color:var(--primary);transform:scale(1.1)}
+.th-swatch[data-t="1"]{background:linear-gradient(135deg,#0c1410,#c89211)}
+.th-swatch[data-t="2"]{background:linear-gradient(135deg,#071812,#fbb040)}
+.th-swatch[data-t="3"]{background:linear-gradient(135deg,#05140c,#f4b500)}
+.th-swatch[data-t="4"]{background:linear-gradient(135deg,#f0fdf4,#d97706)}
+.lang-row{display:flex;gap:4px;padding:4px 12px 10px}
+.lang-btn{flex:1;background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.lang-btn.active{background:var(--primary-bg);border-color:var(--primary);color:var(--primary)}
+/* hide EN text in TH mode, hide TH text in EN mode */
+[data-lang="th"] .lang-en{display:none}
+[data-lang="en"] .lang-th{display:none}
 /* ── LOGIN ─────────────────────────────────────────────────── */
-#s-login{align-items:center;justify-content:center;min-height:100vh;padding:24px;
-  background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#0f172a 100%)}
+#s-login{align-items:center;justify-content:center;min-height:100vh;padding:24px;background:var(--login-bg)}
 .login-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:40px 32px;max-width:360px;width:100%;text-align:center;box-shadow:0 25px 50px rgba(0,0,0,.5)}
 .login-logo{font-size:52px;margin-bottom:12px}
 .login-title{font-size:20px;font-weight:700;margin-bottom:4px}
@@ -77,6 +124,12 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .search-input::placeholder{color:var(--muted)}
 .search-clear{color:var(--muted);cursor:pointer;font-size:14px;transition:opacity .2s;opacity:0}
 .search-clear.show{opacity:1}
+/* ── TRANSPORT FILTER ──────────────────────────────────────── */
+.transport-filter{display:flex;gap:6px;padding:8px 14px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center}
+.tf-label{font-size:10px;color:var(--muted);margin-right:2px;flex-shrink:0}
+.tf-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tf-btn:hover{border-color:var(--primary);color:var(--primary)}
+.tf-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 /* ── STUDENTS GRID ─────────────────────────────────────────── */
 .students-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;padding:14px;overflow-y:auto}
 /* ── FLIP CARD ─────────────────────────────────────────────── */
@@ -251,7 +304,7 @@ input,select,textarea{font-family:'Prompt',sans-serif}
     <div class="login-sub" id="login-sub">กำลังโหลด...</div>
     <button class="google-btn" onclick="signIn()">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google"/>
-      เข้าสู่ระบบด้วย Google
+      <span class="lang-th">เข้าสู่ระบบด้วย Google</span><span class="lang-en">Sign in with Google</span>
     </button>
   </div>
 </div>
@@ -271,14 +324,33 @@ input,select,textarea{font-family:'Prompt',sans-serif}
       <button class="adm-btn" onclick="showAdminScreen('s-roles')">👥 Roles</button>
       <button class="adm-btn" onclick="showAdminScreen('s-permissions')">🔐 Perms</button>
     </div>
+    <button class="refresh-btn hidden" id="refresh-btn" onclick="refreshCurrent()" title="รีเฟรชข้อมูล">↻</button>
     <div class="user-chip" onclick="toggleMenu()">
       <div class="u-av" id="u-av">?</div>
       <div class="u-name" id="u-name">...</div>
       <span class="role-badge rb-none" id="u-role">-</span>
       <div class="user-menu hidden" id="user-menu">
-        <button class="um-item" onclick="showScreen('s-classes');closeMenu()">🏫 เลือกห้อง</button>
+        <button class="um-item" onclick="showScreen('s-classes');closeMenu()">
+          <span class="lang-th">🏫 เลือกห้อง</span><span class="lang-en">🏫 Rooms</span>
+        </button>
         <hr class="um-sep"/>
-        <button class="um-item danger" onclick="signOut()">🚪 ออกจากระบบ</button>
+        <div class="um-section"><span class="lang-th">ธีม</span><span class="lang-en">Theme</span></div>
+        <div class="theme-row">
+          <div class="th-swatch active" data-t="1" onclick="setTheme(1)" title="Yearbook"></div>
+          <div class="th-swatch" data-t="2" onclick="setTheme(2)" title="Trading Card"></div>
+          <div class="th-swatch" data-t="3" onclick="setTheme(3)" title="Modern"></div>
+          <div class="th-swatch" data-t="4" onclick="setTheme(4)" title="Light"></div>
+          <span style="font-size:10px;color:var(--muted);align-self:center;margin-left:4px" id="theme-label">Yearbook</span>
+        </div>
+        <div class="um-section"><span class="lang-th">ภาษา</span><span class="lang-en">Language</span></div>
+        <div class="lang-row">
+          <button class="lang-btn active" id="lang-th-btn" onclick="setLang('th')">🇹🇭 ไทย</button>
+          <button class="lang-btn" id="lang-en-btn" onclick="setLang('en')">🇬🇧 English</button>
+        </div>
+        <hr class="um-sep"/>
+        <button class="um-item danger" onclick="signOut()">
+          <span class="lang-th">🚪 ออกจากระบบ</span><span class="lang-en">🚪 Sign out</span>
+        </button>
       </div>
     </div>
   </div>
@@ -311,6 +383,14 @@ input,select,textarea{font-family:'Prompt',sans-serif}
       <input class="search-input" id="search-input" placeholder="ค้นหาชื่อ ชื่อเล่น รหัส เลขที่..." oninput="onSearch()"/>
       <span class="search-clear" id="search-clear" onclick="clearSearch()">✕</span>
     </div>
+  </div>
+  <div class="transport-filter">
+    <span class="tf-label">การเดินทาง:</span>
+    <button class="tf-btn active" id="tf-all"      onclick="setTransportFilter(null)">ทั้งหมด</button>
+    <button class="tf-btn"        id="tf-car"       onclick="setTransportFilter('รถส่วนตัว')">🚗 รถส่วนตัว</button>
+    <button class="tf-btn"        id="tf-school"    onclick="setTransportFilter('รถโรงเรียน')">🚌 รถโรงเรียน</button>
+    <button class="tf-btn"        id="tf-public"    onclick="setTransportFilter('รถสาธารณะ')">🚐 รถสาธารณะ</button>
+    <button class="tf-btn"        id="tf-mrt"       onclick="setTransportFilter('MRT')">🚇 MRT</button>
   </div>
   <div class="students-grid" id="students-grid"></div>
 </div>
@@ -574,13 +654,14 @@ async function initUser() {
     if (logoEl && CFG.LOGO_URL) logoEl.src = CFG.LOGO_URL;
 
     show('topbar');
+    show('refresh-btn');
     if (info.role === 'admin' || info.role === 'teacher') {
       show('admin-nav');
     }
 
     await api({ action:'log', logAction:'LOGIN', target:'ระบบ' });
-    showScreen('s-classes');
-    renderClasses();
+    // ข้ามหน้าเลือกห้อง → เปิดห้อง 1/4 โดยตรง
+    await openRoom(4);
   } catch(e) {
     toast('❌ ' + e.message);
     showScreen('s-login');
@@ -605,6 +686,27 @@ function updateTopbarUser() {
 }
 
 // ── SCREENS ──────────────────────────────────────────────────────
+async function refreshCurrent() {
+  const btn = document.getElementById('refresh-btn');
+  if (btn) btn.classList.add('spinning');
+  try {
+    const active = document.querySelector('.screen.active');
+    if (!active) return;
+    const id = active.id;
+    if (id === 's-classes') {
+      await loadClasses();
+    } else if (id === 's-students') {
+      await openRoom(S.currentRoom || 4);
+    } else if (id === 's-log') {
+      await loadLog();
+    } else if (id === 's-roles') {
+      await loadRoles();
+    }
+  } finally {
+    if (btn) btn.classList.remove('spinning');
+  }
+}
+
 function showScreen(id, back) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById(id);
@@ -617,7 +719,7 @@ function showScreen(id, back) {
 }
 
 function showAdminScreen(id) {
-  showScreen(id, 's-classes');
+  showScreen(id, 's-students');
   const labels = { 's-log':'📋 Access Log', 's-roles':'👥 จัดการ Role', 's-permissions':'🔐 Permission Matrix' };
   setText('tb-title', labels[id] || '');
   setText('tb-sub', '');
@@ -630,14 +732,14 @@ function showAdminScreen(id) {
 }
 
 function goBack() {
-  const t = S.prevScreen || 's-classes';
-  if (t === 's-classes') {
-    setText('tb-title', 'นามบัตรนักเรียน');
-    setText('tb-sub', CFG.GRADE + ' · ' + CFG.SCHOOL_NAME);
-    hide('btn-back');
-    S.prevScreen = null;
+  const t = S.prevScreen;
+  if (!t || t === 's-classes') {
+    // ไม่มีหน้าก่อนหน้า หรือเป็น classes → กลับไปห้อง 1/4
+    openRoom(4);
+    return;
   }
   showScreen(t);
+  S.prevScreen = null;
 }
 
 // ── CLASSES ──────────────────────────────────────────────────────
@@ -678,6 +780,7 @@ async function openRoom(room) {
   setText('tb-sub', '');
   document.getElementById('search-input').value = '';
   document.getElementById('search-clear').classList.remove('show');
+  setTransportFilter(null);
   setText('students-grid', '');
   showScreen('s-students', 's-classes');
 
@@ -695,27 +798,52 @@ async function openRoom(room) {
   }
 }
 
-// ── SEARCH ───────────────────────────────────────────────────────
+// ── SEARCH + TRANSPORT FILTER ─────────────────────────────────────
+let transportFilter = null;
+
+function setTransportFilter(val) {
+  transportFilter = val;
+  // update button styles
+  const ids = { null:'tf-all', 'รถส่วนตัว':'tf-car', 'รถโรงเรียน':'tf-school', 'รถสาธารณะ':'tf-public', 'MRT':'tf-mrt' };
+  Object.values(ids).forEach(id => document.getElementById(id)?.classList.remove('active'));
+  const activeId = ids[val] || 'tf-all';
+  document.getElementById(activeId)?.classList.add('active');
+  applyFilters();
+}
+
 function onSearch() {
-  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const q = document.getElementById('search-input').value.trim();
   document.getElementById('search-clear').classList.toggle('show', !!q);
-  if (!q) { S.filtered = [...S.students]; }
-  else {
-    S.filtered = S.students.filter(s =>
-      (s.name_th     ||'').toLowerCase().includes(q) ||
-      (s.name_en     ||'').toLowerCase().includes(q) ||
-      (s.nickname_th ||'').toLowerCase().includes(q) ||
-      (s.nickname_en ||'').toLowerCase().includes(q) ||
-      (s.student_id  ||'').toString().includes(q) ||
-      (s.seat_no     ||'').toString().includes(q)
-    );
-  }
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = (document.getElementById('search-input').value || '').trim().toLowerCase();
+  S.filtered = S.students.filter(s => {
+    // transport filter
+    if (transportFilter) {
+      const t = (s.transport || '').toString().trim();
+      if (t !== transportFilter) return false;
+    }
+    // text search
+    if (!q) return true;
+    return (s.name_th     ||'').toLowerCase().includes(q) ||
+           (s.name_en     ||'').toLowerCase().includes(q) ||
+           (s.nickname_th ||'').toLowerCase().includes(q) ||
+           (s.nickname_en ||'').toLowerCase().includes(q) ||
+           (s.student_id  ||'').toString().includes(q) ||
+           (s.seat_no     ||'').toString().includes(q);
+  });
+  // แสดงจำนวนที่ filter แล้ว
+  const total = S.students.length;
+  const shown = S.filtered.length;
+  setText('tb-sub', shown === total ? total + ' คน' : shown + ' / ' + total + ' คน');
   renderStudents();
 }
 
 function clearSearch() {
   document.getElementById('search-input').value = '';
-  onSearch();
+  applyFilters();
 }
 
 // ── RENDER STUDENTS ───────────────────────────────────────────────
@@ -1203,6 +1331,33 @@ function toggleMenu() {
 function closeMenu() {
   document.getElementById('user-menu').classList.add('hidden');
 }
+
+// ── THEME SWITCHER ────────────────────────────────────────────────
+const THEME_NAMES = { 1:'Yearbook', 2:'Trading Card', 3:'Modern', 4:'Light' };
+function setTheme(n) {
+  document.documentElement.setAttribute('data-theme', n);
+  localStorage.setItem('mep-theme', n);
+  document.querySelectorAll('.th-swatch').forEach(s => s.classList.toggle('active', s.dataset.t == n));
+  const lbl = document.getElementById('theme-label');
+  if (lbl) lbl.textContent = THEME_NAMES[n] || '';
+}
+
+// ── LANGUAGE TOGGLE ───────────────────────────────────────────────
+function setLang(lang) {
+  document.documentElement.setAttribute('data-lang', lang);
+  document.documentElement.setAttribute('lang', lang);
+  localStorage.setItem('mep-lang', lang);
+  document.getElementById('lang-th-btn')?.classList.toggle('active', lang === 'th');
+  document.getElementById('lang-en-btn')?.classList.toggle('active', lang === 'en');
+}
+
+// ── RESTORE SAVED PREFERENCES ─────────────────────────────────────
+(function restorePrefs() {
+  const t = localStorage.getItem('mep-theme');
+  const l = localStorage.getItem('mep-lang');
+  if (t) setTheme(parseInt(t));
+  if (l) setLang(l);
+})();
 document.addEventListener('click', e => {
   if (!e.target.closest('.user-chip')) closeMenu();
 });
