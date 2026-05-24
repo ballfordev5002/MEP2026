@@ -45,6 +45,7 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 /* ── TOPBAR ───────────────────────────────────────────────── */
 #topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px}
 .tb-left{display:flex;align-items:center;gap:10px;min-width:0}
+.tb-logo{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid var(--border2)}
 .tb-back{background:none;border:none;color:var(--text);font-size:22px;padding:4px 8px;line-height:1;flex-shrink:0}
 .tb-title{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tb-sub{font-size:11px;color:var(--muted)}
@@ -341,6 +342,7 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 <!-- ─── TOPBAR (shared) ──────────────────────────────────────── -->
 <div id="topbar" class="hidden">
   <div class="tb-left">
+    <img id="tb-logo" class="tb-logo" src="" alt="โรงเรียนเทพศิรินทร์" onerror="this.style.display='none'"/>
     <div>
       <div class="tb-title" id="tb-title"><span class="lang-th">นามบัตรนักเรียน</span><span class="lang-en">Student ID Card</span></div>
       <div class="tb-sub" id="tb-sub"><span class="lang-th">เทพศิรินทร์ · ม.1 MEP 2026</span><span class="lang-en">Debsirin · Grade 7 MEP 2026</span></div>
@@ -497,6 +499,7 @@ input,select,textarea{font-family:'Prompt',sans-serif}
   <div class="modal-card">
     <div class="modal-header">
       <button class="modal-close" onclick="closeModal()">✕</button>
+      <img id="modal-logo" src="" alt="" style="position:absolute;top:14px;left:14px;width:30px;height:30px;border-radius:50%;object-fit:cover;opacity:.55;border:1.5px solid var(--border2)" onerror="this.style.display='none'"/>
       <div class="modal-photo" id="m-photo">👤</div>
       <div class="modal-nick" id="m-nick">-</div>
       <div class="modal-name" id="m-name">-</div>
@@ -868,7 +871,7 @@ async function openRoom(room) {
     const data = await api({ action:'getStudents', room });
     S.students = data.students || [];
     S.filtered = [...S.students];
-    setTitleBi('tb-sub', S.students.length + ' คน', S.students.length + ' students');
+    setTitleBi('tb-sub', 'MEP 2026 · ' + S.students.length + ' คน', 'MEP 2026 · ' + S.students.length + ' students');
     const cc = document.getElementById('cc-' + room);
     if (cc) cc.textContent = S.students.length + ' คน';
     renderStudents();
@@ -917,7 +920,7 @@ function applyFilters() {
   // แสดงจำนวนที่ filter แล้ว
   const total = S.students.length;
   const shown = S.filtered.length;
-  setTitleBi('tb-sub', shown === total ? total + ' คน' : shown + '/' + total + ' คน', shown === total ? total + ' students' : shown + '/' + total + ' students');
+  setTitleBi('tb-sub', shown === total ? 'MEP 2026 · ' + total + ' คน' : shown + '/' + total + ' คน', shown === total ? 'MEP 2026 · ' + total + ' students' : shown + '/' + total + ' students');
   renderStudents();
 }
 
@@ -1492,10 +1495,20 @@ function setLang(lang) {
 // ── RESTORE SAVED PREFERENCES ─────────────────────────────────────
 (function restorePrefs() {
   let t = parseInt(localStorage.getItem('mep-theme') || '1');
-  if (t < 1 || t > 2) t = 1; // clamp: รองรับ 2 themes เท่านั้น
+  if (t < 1 || t > 2) t = 1;
   setTheme(t);
   const l = localStorage.getItem('mep-lang');
   if (l) setLang(l);
+  // ตั้ง logo ทุกจุดทันที (ก่อน auth)
+  if (CFG.LOGO_URL) {
+    ['school-logo-login','tb-logo','modal-logo'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.src = CFG.LOGO_URL; el.style.display = ''; }
+    });
+    // ซ่อน fallback emoji บน login
+    const fb = document.getElementById('login-logo-fb');
+    if (fb) fb.style.display = 'none';
+  }
 })();
 document.addEventListener('click', e => {
   if (!e.target.closest('.user-chip')) closeMenu();
