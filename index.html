@@ -58,6 +58,7 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .rb-teacher{background:rgba(251,191,36,.2);color:#fbbf24}
 .rb-parent{background:rgba(52,211,153,.2);color:#34d399}
 .rb-student{background:rgba(74,222,128,.2);color:#4ade80}
+.rb-guest{background:rgba(148,163,184,.15);color:#94a3b8}
 .rb-none{background:var(--surface2);color:var(--muted)}
 /* dropdown menu */
 .user-menu{position:absolute;top:100%;right:0;margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:12px;min-width:160px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.4);z-index:200}
@@ -501,6 +502,7 @@ input,select,textarea{font-family:'Prompt',sans-serif}
           <th>👨‍👩‍👧 ผู้ปกครอง (ลูก)</th>
           <th>👥 ผู้ปกครอง (อื่น)</th>
           <th>🎒 นักเรียน</th>
+          <th>👤 Guest</th>
         </tr>
       </thead>
       <tbody id="perm-body"></tbody>
@@ -1179,7 +1181,7 @@ async function loadRoles() {
 
 function renderRoles() {
   const body = document.getElementById('roles-body');
-  const ROLE_LABEL = { admin:'👑 Admin', teacher:'🏫 Teacher', parent:'👨‍👩‍👧 ผู้ปกครอง', student:'🎒 นักเรียน' };
+  const ROLE_LABEL = { admin:'👑 Admin', teacher:'🏫 Teacher', parent:'👨‍👩‍👧 ผู้ปกครอง', student:'🎒 นักเรียน', guest:'👤 Guest' };
   body.innerHTML = S.roles.map(r => `
     <tr>
       <td>${r.email||''}</td>
@@ -1253,15 +1255,15 @@ const FIELD_LABELS = {
   room:'ห้องเรียน', student_phone:'เบอร์โทรนักเรียน', student_line:'LINE ID',
   student_email:'อีเมลนักเรียน', address:'ที่อยู่ปัจจุบัน',
   parent1_name:'ชื่อผู้ปกครอง 1', parent1_phone:'เบอร์ผู้ปกครอง 1', parent1_email:'อีเมลผู้ปกครอง 1',
-  parent2_name:'ชื่อผู้ปกครอง 2', parent2_phone:'เบอร์ผู้ปกครอง 2',
+  parent2_name:'ชื่อผู้ปกครอง 2', parent2_phone:'เบอร์ผู้ปกครอง 2', parent2_email:'อีเมลผู้ปกครอง 2',
 };
 const FIELD_GROUPS = {
   'ข้อมูลพื้นฐาน':     ['seat_no','student_id','photo_url','theme','name_th','name_en','nickname_th','nickname_en','transport','room'],
   'ข้อมูลติดต่อ นร.':  ['student_phone','student_line','student_email'],
   'ข้อมูลส่วนตัว':     ['address'],
-  'ข้อมูลผู้ปกครอง':   ['parent1_name','parent1_phone','parent1_email','parent2_name','parent2_phone'],
+  'ข้อมูลผู้ปกครอง':   ['parent1_name','parent1_phone','parent1_email','parent2_name','parent2_phone','parent2_email'],
 };
-const PERM_COLS = ['admin','teacher','parent_own','parent_other','student'];
+const PERM_COLS = ['admin','teacher','parent_own','parent_other','student','guest'];
 
 async function loadPermissions() {
   try {
