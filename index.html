@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>📚 นามบัตรนักเรียน ม.1</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<style>
+/* ── RESET & VARIABLES ─────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--surface:#1e293b;--surface2:#293548;--border:rgba(255,255,255,.08);
+  --text:#f1f5f9;--muted:#94a3b8;--primary:#818cf8;--primary-bg:rgba(129,140,248,.15);
+  --green:#34d399;--yellow:#fbbf24;--red:#f87171;--r:16px;--r-sm:10px;
+}
+html{font-size:16px}
+body{font-family:'Prompt',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+button{font-family:'Prompt',sans-serif;cursor:pointer}
+input,select,textarea{font-family:'Prompt',sans-serif}
+.hidden{display:none!important}
+/* ── LOADING ───────────────────────────────────────────────── */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* ── SCREENS ──────────────────────────────────────────────── */
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
+/* ── TOPBAR ───────────────────────────────────────────────── */
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px}
+.tb-left{display:flex;align-items:center;gap:10px;min-width:0}
+.tb-back{background:none;border:none;color:var(--text);font-size:22px;padding:4px 8px;line-height:1;flex-shrink:0}
+.tb-title{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-sub{font-size:11px;color:var(--muted)}
+.tb-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.user-chip{display:flex;align-items:center;gap:7px;background:var(--surface2);border-radius:20px;padding:5px 10px;cursor:pointer;position:relative}
+.u-av{width:26px;height:26px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.u-name{font-size:11px;font-weight:600;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.role-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px}
+.rb-admin{background:rgba(239,68,68,.2);color:#f87171}
+.rb-teacher{background:rgba(251,191,36,.2);color:#fbbf24}
+.rb-parent{background:rgba(52,211,153,.2);color:#34d399}
+.rb-student{background:rgba(129,140,248,.2);color:#818cf8}
+.rb-none{background:var(--surface2);color:var(--muted)}
+/* dropdown menu */
+.user-menu{position:absolute;top:100%;right:0;margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:12px;min-width:160px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.4);z-index:200}
+.um-item{display:flex;align-items:center;gap:8px;padding:11px 14px;font-size:13px;color:var(--text);border:none;background:none;width:100%;text-align:left;transition:background .15s}
+.um-item:hover{background:var(--surface2)}
+.um-item.danger{color:var(--red)}
+.um-sep{border:none;border-top:1px solid var(--border);margin:4px 0}
+/* admin nav */
+.admin-nav{display:flex;gap:6px}
+.adm-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 10px;font-size:11px;transition:all .15s}
+.adm-btn:hover,.adm-btn.active{border-color:var(--primary);color:var(--primary);background:var(--primary-bg)}
+/* ── LOGIN ─────────────────────────────────────────────────── */
+#s-login{align-items:center;justify-content:center;min-height:100vh;padding:24px;
+  background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#0f172a 100%)}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:40px 32px;max-width:360px;width:100%;text-align:center;box-shadow:0 25px 50px rgba(0,0,0,.5)}
+.login-logo{font-size:52px;margin-bottom:12px}
+.login-title{font-size:20px;font-weight:700;margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#374151;border:none;border-radius:12px;padding:13px 20px;font-size:14px;font-weight:500;width:100%;transition:all .2s}
+.google-btn:hover{background:#f3f4f6;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+/* ── CLASSES ───────────────────────────────────────────────── */
+.classes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;padding:20px;max-width:720px;margin:0 auto;width:100%}
+.class-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px 12px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.class-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--primary)}
+.class-card:hover{transform:translateY(-3px);border-color:var(--primary);background:var(--surface2)}
+.cc-num{font-size:28px;font-weight:700;color:var(--primary)}
+.cc-label{font-size:11px;color:var(--muted);margin-top:3px}
+.cc-count{font-size:12px;margin-top:8px}
+/* ── SEARCH ────────────────────────────────────────────────── */
+.search-wrap{padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:8px}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 14px;flex:1}
+.search-input{background:none;border:none;outline:none;color:var(--text);font-size:14px;width:100%}
+.search-input::placeholder{color:var(--muted)}
+.search-clear{color:var(--muted);cursor:pointer;font-size:14px;transition:opacity .2s;opacity:0}
+.search-clear.show{opacity:1}
+/* ── STUDENTS GRID ─────────────────────────────────────────── */
+.students-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;padding:14px;overflow-y:auto}
+/* ── FLIP CARD ─────────────────────────────────────────────── */
+.flip-wrap{perspective:1200px;height:220px}
+.flip-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1);cursor:pointer}
+.flip-wrap.flipped .flip-inner{transform:rotateY(180deg)}
+.flip-front,.flip-back{position:absolute;inset:0;border-radius:var(--r);backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.flip-back{transform:rotateY(180deg)}
+/* THEMES */
+.th-galaxy{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:#fff}
+.th-nature{background:linear-gradient(135deg,#134e5e,#71b280);color:#fff}
+.th-pastel{background:linear-gradient(135deg,#ffd3e0,#c9d6ff);color:#3730a3}
+.th-sport{background:linear-gradient(135deg,#f12711,#f5af19);color:#fff}
+.th-cyber{background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:#00f5ff}
+.th-debsirin{background:linear-gradient(135deg,#00622a,#009344,#fbb040);color:#fff}
+.th-debsirin .cf-id,.th-debsirin .cf-transport{background:rgba(0,0,0,.3)}
+.th-debsirin .cf-theme-btn{background:rgba(0,0,0,.25)}
+/* CARD FRONT */
+.cf-inner{height:100%;display:flex;flex-direction:column;align-items:center;padding:14px 10px 10px;position:relative}
+.cf-id{position:absolute;top:7px;left:7px;font-size:9px;font-weight:600;background:rgba(0,0,0,.25);padding:2px 6px;border-radius:7px;opacity:.8}
+.cf-theme-btn{position:absolute;top:7px;right:7px;font-size:14px;background:rgba(0,0,0,.2);border:none;border-radius:6px;padding:2px 5px;line-height:1;color:inherit}
+.photo-wrap{width:68px;height:68px;border-radius:50%;border:3px solid rgba(255,255,255,.4);overflow:hidden;margin-bottom:9px;background:rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;flex-shrink:0}
+.photo-wrap img{width:100%;height:100%;object-fit:cover}
+.cf-nick{font-size:19px;font-weight:700;text-align:center;line-height:1.2}
+.cf-name{font-size:9.5px;opacity:.75;text-align:center;margin-top:3px;line-height:1.3}
+.cf-transport{margin-top:auto;font-size:9.5px;opacity:.75;background:rgba(0,0,0,.2);padding:3px 9px;border-radius:10px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cf-hint{position:absolute;bottom:7px;right:8px;font-size:12px;opacity:.4}
+/* CARD BACK */
+.cb-inner{height:100%;padding:11px;display:flex;flex-direction:column;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)}
+.cb-head{font-size:11px;font-weight:700;color:var(--muted)}
+.cb-row{display:flex;align-items:center;gap:6px;font-size:11px}
+.cb-icon{font-size:13px;width:18px;text-align:center;flex-shrink:0}
+.cb-val{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cb-locked{color:var(--muted);font-size:10px;font-style:italic}
+.cb-detail-btn{margin-top:auto;background:var(--primary-bg);color:var(--primary);border:1px solid rgba(129,140,248,.3);border-radius:8px;padding:6px;font-size:11px;font-weight:600;width:100%;transition:all .15s}
+.cb-detail-btn:hover{background:var(--primary);color:#fff}
+/* ── NO RESULTS ────────────────────────────────────────────── */
+.no-results{grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--muted)}
+.nr-emoji{font-size:40px;margin-bottom:12px}
+/* ── MODAL ─────────────────────────────────────────────────── */
+#modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:1000;align-items:flex-end;justify-content:center;padding:0}
+#modal-overlay.active{display:flex}
+@media(min-width:640px){#modal-overlay{align-items:center;padding:16px}}
+.modal-card{background:var(--surface);border:1px solid var(--border);border-radius:24px 24px 0 0;width:100%;max-width:440px;max-height:92vh;overflow-y:auto;box-shadow:0 -10px 40px rgba(0,0,0,.4)}
+@media(min-width:640px){.modal-card{border-radius:24px;max-height:88vh}}
+.modal-header{padding:20px 20px 0;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative}
+.modal-close{position:absolute;top:0;right:0;background:var(--surface2);border:none;color:var(--muted);width:34px;height:34px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center}
+.modal-photo{width:90px;height:90px;border-radius:50%;border:4px solid var(--primary);overflow:hidden;margin-bottom:10px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;flex-shrink:0}
+.modal-photo img{width:100%;height:100%;object-fit:cover}
+.modal-nick{font-size:24px;font-weight:700}
+.modal-name{font-size:13px;color:var(--muted);margin-top:2px}
+.modal-room-badge{margin-top:7px;font-size:11px;background:var(--primary-bg);color:var(--primary);padding:4px 12px;border-radius:10px;display:inline-block}
+.modal-body{padding:14px 18px 24px}
+.modal-section{margin-bottom:14px}
+.ms-title{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.mf{display:flex;align-items:center;gap:9px;padding:8px 10px;background:var(--bg);border-radius:var(--r-sm);margin-bottom:5px}
+.mf-icon{font-size:15px;width:22px;text-align:center;flex-shrink:0}
+.mf-content{flex:1;min-width:0}
+.mf-label{font-size:9.5px;color:var(--muted)}
+.mf-val{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mf-locked{color:var(--muted);font-style:italic;font-size:11px}
+.transport-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border-radius:20px;padding:8px 14px;font-size:13px}
+/* edit button in modal */
+.modal-edit-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px;background:var(--primary-bg);color:var(--primary);border:1px solid rgba(129,140,248,.3);border-radius:10px;font-size:13px;font-weight:600;margin-top:12px;transition:all .15s}
+.modal-edit-btn:hover{background:var(--primary);color:#fff}
+/* ── LOG SCREEN ────────────────────────────────────────────── */
+.log-filter{display:flex;gap:8px;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.log-filter select{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 10px;font-size:12px}
+.log-table-wrap{overflow-x:auto;flex:1}
+.log-table{width:100%;border-collapse:collapse;font-size:12px}
+.log-table th{background:var(--surface2);padding:9px 12px;text-align:left;color:var(--muted);font-weight:600;font-size:11px;white-space:nowrap;position:sticky;top:0}
+.log-table td{padding:8px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
+.log-table tr:hover td{background:var(--surface2)}
+.log-action{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;display:inline-block}
+.la-login{background:rgba(52,211,153,.15);color:#34d399}
+.la-view{background:rgba(129,140,248,.15);color:#818cf8}
+.la-edit{background:rgba(251,191,36,.15);color:#fbbf24}
+/* ── ROLES SCREEN ──────────────────────────────────────────── */
+.admin-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border)}
+.add-btn{display:flex;align-items:center;gap:6px;background:var(--primary);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;transition:opacity .15s}
+.add-btn:hover{opacity:.85}
+.roles-table-wrap{overflow-x:auto;flex:1}
+.roles-table{width:100%;border-collapse:collapse;font-size:12px}
+.roles-table th{background:var(--surface2);padding:9px 12px;text-align:left;color:var(--muted);font-weight:600;font-size:11px;white-space:nowrap;position:sticky;top:0}
+.roles-table td{padding:8px 12px;border-bottom:1px solid var(--border)}
+.roles-table tr:hover td{background:rgba(255,255,255,.02)}
+.role-actions{display:flex;gap:6px}
+.btn-edit{background:var(--primary-bg);color:var(--primary);border:none;border-radius:7px;padding:4px 10px;font-size:11px}
+.btn-del{background:rgba(248,113,113,.1);color:var(--red);border:none;border-radius:7px;padding:4px 10px;font-size:11px}
+/* role form modal */
+#modal-role-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center;padding:16px}
+#modal-role-overlay.active{display:flex}
+.role-form-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;width:100%;max-width:420px;padding:24px}
+.rfc-title{font-size:16px;font-weight:700;margin-bottom:18px}
+.form-field{margin-bottom:14px}
+.form-label{font-size:12px;color:var(--muted);margin-bottom:5px;display:block}
+.form-input,.form-select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px 13px;font-size:13px;outline:none;transition:border-color .15s}
+.form-input:focus,.form-select:focus{border-color:var(--primary)}
+.form-select option{background:var(--surface)}
+.form-row{display:flex;gap:10px}
+.form-row .form-field{flex:1}
+.form-actions{display:flex;gap:8px;margin-top:18px}
+.btn-cancel{flex:1;background:var(--surface2);color:var(--text);border:none;border-radius:10px;padding:11px;font-size:13px}
+.btn-save{flex:2;background:var(--primary);color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:600}
+/* ── PERMISSIONS SCREEN ────────────────────────────────────── */
+.perm-wrap{overflow-x:auto;flex:1;padding:14px}
+.perm-table{border-collapse:collapse;width:100%;min-width:550px}
+.perm-table th{padding:9px 12px;text-align:center;font-size:11px;font-weight:700;background:var(--surface);color:var(--muted);position:sticky;top:0;white-space:nowrap}
+.perm-table th:first-child{text-align:left;min-width:170px}
+.perm-table td{padding:7px 12px;border-bottom:1px solid var(--border);text-align:center}
+.perm-table td:first-child{text-align:left;font-size:12px;color:var(--muted);font-family:monospace}
+.perm-table tr:hover td{background:rgba(255,255,255,.02)}
+.perm-cb{width:16px;height:16px;accent-color:var(--primary);cursor:pointer}
+.perm-section td,.perm-section th{background:#0f172a;font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.5px;padding:6px 12px}
+.perm-save-bar{padding:12px 16px;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.btn-perm-save{background:var(--primary);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600}
+/* ── TOAST ─────────────────────────────────────────────────── */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 18px;font-size:13px;z-index:9999;transition:transform .3s;white-space:nowrap;pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0)}
+/* ── LOOKUP BAR ────────────────────────────────────────────── */
+.lookup-bar{padding:14px 16px 4px;max-width:720px;margin:0 auto;width:100%}
+.lookup-box{display:flex;align-items:center;gap:10px;background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:10px 14px;transition:border-color .2s}
+.lookup-box:focus-within{border-color:var(--primary)}
+.lookup-icon{font-size:20px;flex-shrink:0}
+.lookup-input{background:none;border:none;outline:none;color:var(--text);font-size:16px;width:100%;font-family:'Prompt',sans-serif}
+.lookup-input::placeholder{color:var(--muted)}
+.lookup-btn{background:var(--primary);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:600;white-space:nowrap;flex-shrink:0;font-family:'Prompt',sans-serif;transition:opacity .15s;cursor:pointer}
+.lookup-btn:hover{opacity:.85}
+#lookup-result{max-width:720px;margin:10px auto 0;padding:0 16px;display:none}
+.lookup-found{background:var(--surface);border:1px solid var(--primary);border-radius:14px;overflow:hidden}
+.lf-head{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.lf-photo{width:56px;height:56px;border-radius:50%;border:3px solid var(--primary);overflow:hidden;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;flex-shrink:0}
+.lf-photo img{width:100%;height:100%;object-fit:cover}
+.lf-info{flex:1;min-width:0}
+.lf-nick{font-size:18px;font-weight:700}
+.lf-name{font-size:11px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lf-badges{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+.lf-badge{font-size:10px;padding:2px 9px;border-radius:8px;background:var(--primary-bg);color:var(--primary);font-weight:600}
+.lf-actions{display:flex;gap:8px;padding:10px 14px}
+.lf-btn{flex:1;background:none;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px;font-size:12px;font-weight:500;font-family:'Prompt',sans-serif;transition:all .15s;cursor:pointer}
+.lf-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-bg)}
+.lf-btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.lf-btn.primary:hover{opacity:.85}
+.lookup-not-found{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;color:var(--muted);font-size:13px}
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+@media(max-width:480px){
+  .students-grid{grid-template-columns:repeat(2,1fr);gap:8px;padding:10px}
+  .flip-wrap{height:205px}
+  .cf-nick{font-size:17px}
+}
+@media(min-width:768px){
+  .students-grid{grid-template-columns:repeat(auto-fill,minmax(162px,1fr))}
+}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:4px}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading"><div class="spinner"></div><span style="color:var(--muted);font-size:13px">กำลังโหลด...</span></div>
+
+<!-- ─── SCREEN: LOGIN ────────────────────────────────────────── -->
+<div class="screen" id="s-login">
+  <div class="login-card">
+    <div class="login-logo">
+      <img id="school-logo-login" src="" alt="โรงเรียนเทพศิรินทร์" width="72" height="72" style="border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.15)" onerror="this.style.display='none';document.getElementById('login-logo-fb').style.display='block'"/>
+      <span id="login-logo-fb" style="display:none;font-size:52px">📚</span>
+    </div>
+    <div class="login-title">นามบัตรนักเรียน</div>
+    <div style="font-size:13px;font-weight:600;color:var(--primary);margin-bottom:2px" id="login-school"></div>
+    <div class="login-sub" id="login-sub">กำลังโหลด...</div>
+    <button class="google-btn" onclick="signIn()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google"/>
+      เข้าสู่ระบบด้วย Google
+    </button>
+  </div>
+</div>
+
+<!-- ─── TOPBAR (shared) ──────────────────────────────────────── -->
+<div id="topbar" class="hidden">
+  <div class="tb-left">
+    <button class="tb-back hidden" id="btn-back" onclick="goBack()">‹</button>
+    <div>
+      <div class="tb-title" id="tb-title">นามบัตรนักเรียน</div>
+      <div class="tb-sub" id="tb-sub">เทพศิรินทร์ · ม.1 MEP 2026</div>
+    </div>
+  </div>
+  <div class="tb-right">
+    <div class="admin-nav hidden" id="admin-nav">
+      <button class="adm-btn" onclick="showAdminScreen('s-log')">📋 Log</button>
+      <button class="adm-btn" onclick="showAdminScreen('s-roles')">👥 Roles</button>
+      <button class="adm-btn" onclick="showAdminScreen('s-permissions')">🔐 Perms</button>
+    </div>
+    <div class="user-chip" onclick="toggleMenu()">
+      <div class="u-av" id="u-av">?</div>
+      <div class="u-name" id="u-name">...</div>
+      <span class="role-badge rb-none" id="u-role">-</span>
+      <div class="user-menu hidden" id="user-menu">
+        <button class="um-item" onclick="showScreen('s-classes');closeMenu()">🏫 เลือกห้อง</button>
+        <hr class="um-sep"/>
+        <button class="um-item danger" onclick="signOut()">🚪 ออกจากระบบ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SCREEN: CLASSES ──────────────────────────────────────── -->
+<div class="screen" id="s-classes">
+  <!-- Quick Lookup by Student ID -->
+  <div class="lookup-bar">
+    <div class="lookup-box">
+      <span class="lookup-icon">🪪</span>
+      <input class="lookup-input" id="lookup-input" type="tel" inputmode="numeric"
+             placeholder="กรอกรหัสนักเรียน แล้วกด Enter..."
+             onkeydown="if(event.key==='Enter')lookupStudent()"
+             oninput="onLookupInput()"/>
+      <button class="lookup-btn" onclick="lookupStudent()">ค้นหา</button>
+    </div>
+  </div>
+  <!-- Lookup Result (shows below input) -->
+  <div id="lookup-result"></div>
+  <!-- Room Grid -->
+  <div class="classes-grid" id="classes-grid"></div>
+</div>
+
+<!-- ─── SCREEN: STUDENTS ─────────────────────────────────────── -->
+<div class="screen" id="s-students">
+  <div class="search-wrap">
+    <div class="search-box">
+      <span>🔍</span>
+      <input class="search-input" id="search-input" placeholder="ค้นหาชื่อ ชื่อเล่น รหัส เลขที่..." oninput="onSearch()"/>
+      <span class="search-clear" id="search-clear" onclick="clearSearch()">✕</span>
+    </div>
+  </div>
+  <div class="students-grid" id="students-grid"></div>
+</div>
+
+<!-- ─── SCREEN: LOG ───────────────────────────────────────────── -->
+<div class="screen" id="s-log">
+  <div class="log-filter">
+    <select id="log-room-filter" onchange="loadLog()">
+      <option value="">ทุกห้อง</option>
+    </select>
+    <select id="log-action-filter" onchange="renderLog()">
+      <option value="">ทุก Action</option>
+      <option value="LOGIN">LOGIN</option>
+      <option value="VIEW_ROOM">VIEW_ROOM</option>
+      <option value="VIEW_DETAIL">VIEW_DETAIL</option>
+      <option value="EDIT_STUDENT">EDIT_STUDENT</option>
+      <option value="LOOKUP_ID">LOOKUP_ID</option>
+    </select>
+  </div>
+  <div class="log-table-wrap">
+    <table class="log-table">
+      <thead>
+        <tr>
+          <th>เวลา</th><th>Email</th><th>Role</th><th>Action</th><th>Target</th>
+        </tr>
+      </thead>
+      <tbody id="log-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ─── SCREEN: ROLES ─────────────────────────────────────────── -->
+<div class="screen" id="s-roles">
+  <div class="admin-header">
+    <span style="font-size:14px;font-weight:600">จัดการ Role ผู้ใช้งาน</span>
+    <button class="add-btn" onclick="openRoleForm()">+ เพิ่ม</button>
+  </div>
+  <div class="roles-table-wrap">
+    <table class="roles-table">
+      <thead>
+        <tr><th>Email</th><th>Role</th><th>ห้อง</th><th>รหัสนักเรียน</th><th>Note</th><th></th></tr>
+      </thead>
+      <tbody id="roles-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ─── SCREEN: PERMISSIONS ──────────────────────────────────── -->
+<div class="screen" id="s-permissions">
+  <div class="perm-wrap">
+    <table class="perm-table" id="perm-table">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>👑 Admin</th>
+          <th>🏫 Teacher</th>
+          <th>👨‍👩‍👧 ผปค (ลูก)</th>
+          <th>👥 ผปค (อื่น)</th>
+          <th>🎒 นักเรียน</th>
+        </tr>
+      </thead>
+      <tbody id="perm-body"></tbody>
+    </table>
+  </div>
+  <div class="perm-save-bar">
+    <button class="btn-perm-save" onclick="savePermissions()">💾 บันทึก Permission</button>
+  </div>
+</div>
+
+<!-- ─── MODAL: STUDENT DETAIL ─────────────────────────────────── -->
+<div id="modal-overlay" onclick="onModalBg(event)">
+  <div class="modal-card">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-photo" id="m-photo">👤</div>
+      <div class="modal-nick" id="m-nick">-</div>
+      <div class="modal-name" id="m-name">-</div>
+      <div class="modal-room-badge" id="m-room">-</div>
+    </div>
+    <div class="modal-body" id="m-body"></div>
+  </div>
+</div>
+
+<!-- ─── MODAL: ROLE FORM ──────────────────────────────────────── -->
+<div id="modal-role-overlay" onclick="onRoleModalBg(event)">
+  <div class="role-form-card">
+    <div class="rfc-title" id="rfc-title">เพิ่ม Role</div>
+    <div class="form-field">
+      <label class="form-label">Gmail *</label>
+      <input class="form-input" id="rf-email" type="email" placeholder="email@gmail.com"/>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Role *</label>
+        <select class="form-select" id="rf-role" onchange="onRoleChange()">
+          <option value="admin">👑 Admin</option>
+          <option value="teacher">🏫 Teacher</option>
+          <option value="parent">👨‍👩‍👧 ผปค (Parent)</option>
+          <option value="student">🎒 นักเรียน</option>
+        </select>
+      </div>
+      <div class="form-field" id="rf-room-wrap">
+        <label class="form-label">ห้อง (Teacher)</label>
+        <select class="form-select" id="rf-room">
+          <option value="">-- เลือก --</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-field" id="rf-sid-wrap">
+      <label class="form-label">รหัสนักเรียน (Parent/Student)</label>
+      <input class="form-input" id="rf-sid" placeholder="เช่น 67001"/>
+    </div>
+    <div class="form-field">
+      <label class="form-label">Note</label>
+      <input class="form-input" id="rf-note" placeholder="เช่น ผปค ด.ช.สมชาย"/>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeRoleModal()">ยกเลิก</button>
+      <button class="btn-save" onclick="saveRole()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast">✅ บันทึกแล้ว</div>
+
+<script>
+// ================================================================
+// CONFIG — แก้ค่า APPS_SCRIPT_URL หลัง Deploy Apps Script
+// ================================================================
+const CFG = {
+  APPS_SCRIPT_URL: 'YOUR_APPS_SCRIPT_URL',  // ← ใส่ URL Apps Script ตรงนี้!
+  SCHOOL_NAME:     'โรงเรียนเทพศิรินทร์',
+  PROGRAM_NAME:    'MEP 2026',
+  GRADE:           'ม.1',
+  TOTAL_ROOMS:     10,
+  LOGO_URL:        'https://www.debsirin.ac.th/wp-content/uploads/2020/12/logo.png', // ← logo โรงเรียน (เปลี่ยนได้)
+};
+
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyDl41bNr0qLG9UojXZ65B8ZLPcXK7nxfoA",
+  authDomain:        "mep2026.firebaseapp.com",
+  projectId:         "mep2026",
+  storageBucket:     "mep2026.firebasestorage.app",
+  messagingSenderId: "954266364060",
+  appId:             "1:954266364060:web:eea9a9c0ffd23304cc6559",
+  measurementId:     "G-FLM9ST2BNV",
+};
+
+// ── THEMES ──────────────────────────────────────────────────────
+const THEME_MAP = {
+  galaxy:    { css:'th-galaxy',    emoji:'🌌' },
+  nature:    { css:'th-nature',    emoji:'🌿' },
+  pastel:    { css:'th-pastel',    emoji:'🌸' },
+  sport:     { css:'th-sport',     emoji:'⚽' },
+  cyber:     { css:'th-cyber',     emoji:'💻' },
+  debsirin:  { css:'th-debsirin',  emoji:'🏫' },
+};
+const THEMES = Object.keys(THEME_MAP);
+
+function themeFromFormValue(v) {
+  if (!v) return 'galaxy';
+  const s = v.toLowerCase();
+  if (s.includes('galaxy'))                       return 'galaxy';
+  if (s.includes('nature'))                       return 'nature';
+  if (s.includes('pastel') || s.includes('ชมพู')) return 'pastel';
+  if (s.includes('sport')  || s.includes('กีฬา')) return 'sport';
+  if (s.includes('cyber')  || s.includes('ฟ้า'))  return 'cyber';
+  if (s.includes('debsirin') || s.includes('เทพ') || s.includes('เขียว-เหลือง')) return 'debsirin';
+  return 'galaxy';
+}
+
+const TRANSPORT_ICON = {
+  'รถส่วนตัว':'🚗','รถโรงเรียน':'🚌','รถเมล์':'🚍','MRT':'🚇','BTS':'🚉','อื่นๆ':'🚶',
+};
+
+// ── STATE ────────────────────────────────────────────────────────
+let S = {
+  user:         null,   // Firebase user
+  userInfo:     null,   // { email, role, room, studentId }
+  currentRoom:  null,
+  students:     [],
+  filtered:     [],
+  permissions:  {},
+  roles:        [],
+  logs:         [],
+  prevScreen:   null,
+  editingEmail: null,   // for role form
+  lookupResult: null,   // student found by ID lookup
+};
+
+// ── FIREBASE ────────────────────────────────────────────────────
+firebase.initializeApp(FIREBASE_CONFIG);
+const auth     = firebase.auth();
+const provider = new firebase.auth.GoogleAuthProvider();
+
+auth.onAuthStateChanged(async user => {
+  if (user) {
+    S.user = user;
+    await initUser();
+  } else {
+    showScreen('s-login');
+    hide('loading');
+  }
+});
+
+async function signIn() {
+  try { await auth.signInWithPopup(provider); }
+  catch(e) { toast('❌ ' + e.message); }
+}
+
+async function signOut() {
+  closeMenu();
+  await auth.signOut();
+  S = { user:null, userInfo:null, currentRoom:null, students:[], filtered:[], permissions:{}, roles:[], logs:[], prevScreen:null, editingEmail:null };
+  show('loading');
+  showScreen('s-login');
+  setTimeout(() => hide('loading'), 400);
+}
+
+// ── API ──────────────────────────────────────────────────────────
+async function api(params) {
+  const token = await S.user.getIdToken(true);
+  const qs    = new URLSearchParams({ ...params, token }).toString();
+  const res   = await fetch(CFG.APPS_SCRIPT_URL + '?' + qs, { redirect:'follow' });
+  const text  = await res.text();
+  let data;
+  try { data = JSON.parse(text); }
+  catch(e) { throw new Error('Response parse error: ' + text.slice(0,100)); }
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+
+// ── INIT USER ────────────────────────────────────────────────────
+async function initUser() {
+  try {
+    const info = await api({ action:'verify' });
+    S.userInfo = info;
+    S.permissions = await api({ action:'getPermissions' });
+
+    updateTopbarUser();
+
+    document.getElementById('login-school').textContent = CFG.SCHOOL_NAME;
+    document.getElementById('login-sub').textContent = CFG.PROGRAM_NAME + ' · ' + CFG.GRADE;
+    const logoEl = document.getElementById('school-logo-login');
+    if (logoEl && CFG.LOGO_URL) logoEl.src = CFG.LOGO_URL;
+
+    show('topbar');
+    if (info.role === 'admin' || info.role === 'teacher') {
+      show('admin-nav');
+    }
+
+    await api({ action:'log', logAction:'LOGIN', target:'ระบบ' });
+    showScreen('s-classes');
+    renderClasses();
+  } catch(e) {
+    toast('❌ ' + e.message);
+    showScreen('s-login');
+  } finally {
+    hide('loading');
+  }
+}
+
+// ── TOPBAR ───────────────────────────────────────────────────────
+function updateTopbarUser() {
+  const u = S.user;
+  const info = S.userInfo;
+  const initial = (u.displayName || u.email || '?').charAt(0).toUpperCase();
+  setText('u-av', initial);
+  setText('u-name', u.displayName || u.email);
+  const badge = document.getElementById('u-role');
+  const ROLE_LABEL = { admin:'Admin', teacher:'Teacher', parent:'ผปค', student:'นักเรียน', none:'ไม่ได้ลงทะเบียน' };
+  const ROLE_CLS   = { admin:'rb-admin', teacher:'rb-teacher', parent:'rb-parent', student:'rb-student', none:'rb-none' };
+  badge.textContent = ROLE_LABEL[info.role] || info.role;
+  badge.className   = 'role-badge ' + (ROLE_CLS[info.role] || 'rb-none');
+  if (info.role === 'teacher') setText('u-name', (u.displayName || '') + ' (ห้อง ' + info.room + ')');
+}
+
+// ── SCREENS ──────────────────────────────────────────────────────
+function showScreen(id, back) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  S.prevScreen = back || null;
+  const hasBack = !!back;
+  toggle('btn-back', hasBack);
+  // update admin-nav active state
+  document.querySelectorAll('.adm-btn').forEach(b => b.classList.remove('active'));
+}
+
+function showAdminScreen(id) {
+  showScreen(id, 's-classes');
+  const labels = { 's-log':'📋 Access Log', 's-roles':'👥 จัดการ Role', 's-permissions':'🔐 Permission Matrix' };
+  setText('tb-title', labels[id] || '');
+  setText('tb-sub', '');
+  document.querySelectorAll('.adm-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('onclick')?.includes(id));
+  });
+  if (id === 's-log') loadLog();
+  if (id === 's-roles') loadRoles();
+  if (id === 's-permissions') loadPermissions();
+}
+
+function goBack() {
+  const t = S.prevScreen || 's-classes';
+  if (t === 's-classes') {
+    setText('tb-title', 'นามบัตรนักเรียน');
+    setText('tb-sub', CFG.GRADE + ' · ' + CFG.SCHOOL_NAME);
+    hide('btn-back');
+    S.prevScreen = null;
+  }
+  showScreen(t);
+}
+
+// ── CLASSES ──────────────────────────────────────────────────────
+function renderClasses() {
+  setText('tb-title', 'นามบัตรนักเรียน');
+  setText('tb-sub', CFG.GRADE + ' · ' + CFG.SCHOOL_NAME);
+  hide('btn-back');
+
+  // populate log room filter
+  const sel = document.getElementById('log-room-filter');
+  sel.innerHTML = '<option value="">ทุกห้อง</option>';
+  for (let i = 1; i <= CFG.TOTAL_ROOMS; i++) {
+    sel.innerHTML += `<option value="${i}">ม.1/${i}</option>`;
+  }
+  // populate role form room
+  const rs = document.getElementById('rf-room');
+  rs.innerHTML = '<option value="">-- เลือก --</option>';
+  for (let i = 1; i <= CFG.TOTAL_ROOMS; i++) {
+    rs.innerHTML += `<option value="${i}">ม.1/${i}</option>`;
+  }
+
+  const grid = document.getElementById('classes-grid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= CFG.TOTAL_ROOMS; i++) {
+    const div = document.createElement('div');
+    div.className = 'class-card';
+    div.innerHTML = `<div class="cc-num">${i}</div><div class="cc-label">ม.1/${i}</div><div class="cc-count" id="cc-${i}">กำลังโหลด...</div>`;
+    div.onclick = () => openRoom(i);
+    grid.appendChild(div);
+  }
+}
+
+async function openRoom(room) {
+  S.currentRoom = room.toString();
+  show('btn-back');
+  S.prevScreen = 's-classes';
+  setText('tb-title', 'ม.1/' + room);
+  setText('tb-sub', '');
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-clear').classList.remove('show');
+  setText('students-grid', '');
+  showScreen('s-students', 's-classes');
+
+  try {
+    const data = await api({ action:'getStudents', room });
+    S.students = data.students || [];
+    S.filtered = [...S.students];
+    setText('tb-sub', S.students.length + ' คน');
+    const cc = document.getElementById('cc-' + room);
+    if (cc) cc.textContent = S.students.length + ' คน';
+    renderStudents();
+    await api({ action:'log', logAction:'VIEW_ROOM', target:'ม.1/' + room });
+  } catch(e) {
+    toast('❌ ' + e.message);
+  }
+}
+
+// ── SEARCH ───────────────────────────────────────────────────────
+function onSearch() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  document.getElementById('search-clear').classList.toggle('show', !!q);
+  if (!q) { S.filtered = [...S.students]; }
+  else {
+    S.filtered = S.students.filter(s =>
+      (s.name_th     ||'').toLowerCase().includes(q) ||
+      (s.name_en     ||'').toLowerCase().includes(q) ||
+      (s.nickname_th ||'').toLowerCase().includes(q) ||
+      (s.nickname_en ||'').toLowerCase().includes(q) ||
+      (s.student_id  ||'').toString().includes(q) ||
+      (s.seat_no     ||'').toString().includes(q)
+    );
+  }
+  renderStudents();
+}
+
+function clearSearch() {
+  document.getElementById('search-input').value = '';
+  onSearch();
+}
+
+// ── RENDER STUDENTS ───────────────────────────────────────────────
+function renderStudents() {
+  const grid = document.getElementById('students-grid');
+  grid.innerHTML = '';
+
+  if (!S.filtered.length) {
+    grid.innerHTML = '<div class="no-results"><div class="nr-emoji">🔍</div><div>ไม่พบนักเรียนที่ค้นหา</div></div>';
+    return;
+  }
+
+  S.filtered.forEach(s => {
+    const theme = themeFromFormValue(s.theme);
+    const t     = THEME_MAP[theme] || THEME_MAP.galaxy;
+    const sid   = s.student_id || '';
+    const nickTh = s.nickname_th || s.name_th?.split(' ')[0] || '?';
+    const initials = nickTh.charAt(0);
+    const photoHTML = s.photo_url
+      ? `<img src="${s.photo_url}" alt="${nickTh}" onerror="this.parentNode.textContent='${initials}'">`
+      : initials;
+
+    const canPhone = s.student_phone !== null;
+    const canLine  = s.student_line  !== null;
+    const canP1    = s.parent1_name  !== null;
+
+    const transport = s.transport || '';
+    const tIcon = TRANSPORT_ICON[transport] || '🚶';
+
+    const wrap = document.createElement('div');
+    wrap.className = 'flip-wrap';
+    wrap.id = 'card-' + sid;
+    wrap.innerHTML = `
+      <div class="flip-inner">
+        <div class="flip-front ${t.css}">
+          <div class="cf-inner">
+            <div class="cf-id">#${s.seat_no || sid}</div>
+            <button class="cf-theme-btn" onclick="cycleTheme(event,'${sid}')" title="เปลี่ยนธีม">${t.emoji}</button>
+            <div class="photo-wrap">${photoHTML}</div>
+            <div class="cf-nick">${nickTh}</div>
+            <div class="cf-name">${s.name_th || ''}<br/><span style="opacity:.6">${s.nickname_en || ''}</span></div>
+            <div class="cf-transport">${tIcon} ${transport}</div>
+            <div class="cf-hint">↩</div>
+            ${CFG.LOGO_URL?`<img src="${CFG.LOGO_URL}" alt="" style="position:absolute;bottom:7px;left:7px;width:20px;height:20px;border-radius:50%;opacity:.55;object-fit:cover" onerror="this.style.display='none'"/>`:''}
+
+          </div>
+        </div>
+        <div class="flip-back">
+          <div class="cb-inner">
+            <div class="cb-head">${s.name_en || ''}</div>
+            <div class="cb-row"><span class="cb-icon">📞</span><span class="cb-val ${!canPhone?'cb-locked':''}">${canPhone?(s.student_phone||'-'):'🔒 ไม่มีสิทธิ์'}</span></div>
+            <div class="cb-row"><span class="cb-icon">💬</span><span class="cb-val ${!canLine?'cb-locked':''}">${canLine?(s.student_line||'-'):'🔒 ไม่มีสิทธิ์'}</span></div>
+            <div class="cb-row"><span class="cb-icon">👨‍👩‍👧</span><span class="cb-val ${!canP1?'cb-locked':''}">${canP1?(s.parent1_name||'-'):'🔒 ไม่มีสิทธิ์'}</span></div>
+            <div class="cb-row"><span class="cb-icon">🚌</span><span class="cb-val">${tIcon} ${transport}</span></div>
+            <button class="cb-detail-btn" onclick="openModal('${sid}')">ดูข้อมูลเต็ม →</button>
+          </div>
+        </div>
+      </div>`;
+
+    wrap.querySelector('.flip-inner').addEventListener('click', e => {
+      if (e.target.closest('.cb-detail-btn') || e.target.closest('.cf-theme-btn')) return;
+      wrap.classList.toggle('flipped');
+    });
+
+    grid.appendChild(wrap);
+  });
+}
+
+// ── THEME CYCLE ───────────────────────────────────────────────────
+async function cycleTheme(e, sid) {
+  e.stopPropagation();
+  const s = S.students.find(x => x.student_id?.toString() === sid);
+  if (!s) return;
+  const cur = themeFromFormValue(s.theme);
+  const idx = THEMES.indexOf(cur);
+  const next = THEMES[(idx + 1) % THEMES.length];
+  s.theme = next;
+  const fi = S.filtered.findIndex(x => x.student_id?.toString() === sid);
+  if (fi >= 0) S.filtered[fi].theme = next;
+
+  const flipped = document.getElementById('card-' + sid)?.classList.contains('flipped');
+  renderStudents();
+  if (flipped) document.getElementById('card-' + sid)?.classList.add('flipped');
+
+  toast('🎨 ธีม: ' + THEME_MAP[next].emoji + ' ' + next);
+
+  // ครู/Admin บันทึกลง Sheet
+  if (S.userInfo.role === 'admin' || S.userInfo.role === 'teacher') {
+    try {
+      await api({ action:'updateStudent', data: JSON.stringify({ student_id: sid, theme: next }) });
+    } catch(err) { toast('❌ บันทึกธีม: ' + err.message); }
+  }
+}
+
+// ── STUDENT MODAL ─────────────────────────────────────────────────
+async function openModal(sid) {
+  const s = S.students.find(x => x.student_id?.toString() === sid);
+  if (!s) return;
+  _populateModal(s);
+  await api({ action:'log', logAction:'VIEW_DETAIL', target: (s.name_th||sid) + ' ม.1/' + S.currentRoom });
+}
+
+function modalSection(title, fields) {
+  const sec = document.createElement('div');
+  sec.className = 'modal-section';
+  sec.innerHTML = `<div class="ms-title">${title}</div>`;
+  fields.forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'mf';
+    div.innerHTML = `
+      <span class="mf-icon">${f.icon}</span>
+      <div class="mf-content">
+        <div class="mf-label">${f.label}</div>
+        <div class="mf-val ${f.locked ? 'mf-locked' : ''}">${f.locked ? '🔒 ไม่มีสิทธิ์' : (f.val || '-')}</div>
+      </div>`;
+    sec.appendChild(div);
+  });
+  return sec;
+}
+
+function openEditModal(s) {
+  // simple prompt-based edit for now (full edit form can be added later)
+  const phone = prompt('เบอร์โทรนักเรียน:', s.student_phone || '');
+  if (phone === null) return;
+  const line = prompt('LINE ID:', s.student_line || '');
+  if (line === null) return;
+  const note = prompt('ที่อยู่ปัจจุบัน:', s.address || '');
+  if (note === null) return;
+  apiUpdateStudent(s.student_id, { student_phone: phone, student_line: line, address: note });
+}
+
+async function apiUpdateStudent(sid, fields) {
+  try {
+    await api({ action:'updateStudent', data: JSON.stringify({ student_id: sid, ...fields }) });
+    // update local
+    const s = S.students.find(x => x.student_id?.toString() === sid?.toString());
+    if (s) Object.assign(s, fields);
+    renderStudents();
+    toast('✅ บันทึกสำเร็จ');
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+function closeModal() { document.getElementById('modal-overlay').classList.remove('active'); }
+function onModalBg(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+
+// ── ACCESS LOG ────────────────────────────────────────────────────
+async function loadLog() {
+  const room = document.getElementById('log-room-filter').value;
+  try {
+    const data = await api({ action:'getLog', room });
+    S.logs = data.logs || [];
+    renderLog();
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+function renderLog() {
+  const filter = document.getElementById('log-action-filter').value;
+  const body   = document.getElementById('log-body');
+  const logs   = filter ? S.logs.filter(l => (l.action||'').includes(filter)) : S.logs;
+
+  if (!logs.length) {
+    body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">ไม่มีข้อมูล Log</td></tr>';
+    return;
+  }
+
+  const ACTION_CLS = { LOGIN:'la-login', VIEW_ROOM:'la-view', VIEW_DETAIL:'la-view', EDIT_STUDENT:'la-edit', LOOKUP_ID:'la-view' };
+  body.innerHTML = logs.map(l => `
+    <tr>
+      <td>${l.timestamp || ''}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis">${l.email||''}</td>
+      <td><span class="role-badge rb-${l.role||'none'}">${l.role||''}</span></td>
+      <td><span class="log-action ${ACTION_CLS[l.action]||'la-view'}">${l.action||''}</span></td>
+      <td>${l.target||''}</td>
+    </tr>`).join('');
+}
+
+// ── ROLES ─────────────────────────────────────────────────────────
+async function loadRoles() {
+  try {
+    const data = await api({ action:'getRoles' });
+    S.roles = data.roles || [];
+    renderRoles();
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+function renderRoles() {
+  const body = document.getElementById('roles-body');
+  const ROLE_LABEL = { admin:'👑 Admin', teacher:'🏫 Teacher', parent:'👨‍👩‍👧 ผปค', student:'🎒 นักเรียน' };
+  body.innerHTML = S.roles.map(r => `
+    <tr>
+      <td>${r.email||''}</td>
+      <td><span class="role-badge rb-${r.role||'none'}">${ROLE_LABEL[r.role]||r.role}</span></td>
+      <td>${r.room ? 'ม.1/'+r.room : '-'}</td>
+      <td>${r.student_id||'-'}</td>
+      <td style="color:var(--muted);font-size:11px">${r.note||''}</td>
+      <td>
+        <div class="role-actions">
+          <button class="btn-edit" onclick="openRoleForm('${r.email}')">แก้ไข</button>
+          <button class="btn-del" onclick="deleteRole('${r.email}')">ลบ</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function openRoleForm(email) {
+  S.editingEmail = email || null;
+  setText('rfc-title', email ? 'แก้ไข Role' : 'เพิ่ม Role');
+  const r = email ? S.roles.find(x => x.email === email) : null;
+  document.getElementById('rf-email').value     = r?.email     || '';
+  document.getElementById('rf-role').value      = r?.role      || 'parent';
+  document.getElementById('rf-room').value      = r?.room      || '';
+  document.getElementById('rf-sid').value       = r?.student_id || '';
+  document.getElementById('rf-note').value      = r?.note      || '';
+  document.getElementById('rf-email').disabled  = !!email;
+  onRoleChange();
+  document.getElementById('modal-role-overlay').classList.add('active');
+}
+
+function onRoleChange() {
+  const role = document.getElementById('rf-role').value;
+  toggle('rf-room-wrap', role === 'teacher');
+  toggle('rf-sid-wrap', role === 'parent' || role === 'student');
+}
+
+async function saveRole() {
+  const data = {
+    email:      document.getElementById('rf-email').value.trim(),
+    role:       document.getElementById('rf-role').value,
+    room:       document.getElementById('rf-room').value,
+    student_id: document.getElementById('rf-sid').value.trim(),
+    note:       document.getElementById('rf-note').value.trim(),
+  };
+  if (!data.email) { toast('❌ กรุณากรอก email'); return; }
+  try {
+    await api({ action:'upsertRole', data: JSON.stringify(data) });
+    closeRoleModal();
+    toast('✅ บันทึก Role สำเร็จ');
+    await loadRoles();
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+async function deleteRole(email) {
+  if (!confirm('ลบ ' + email + ' ออกจากระบบ?')) return;
+  try {
+    await api({ action:'deleteRole', targetEmail: email });
+    toast('✅ ลบสำเร็จ');
+    await loadRoles();
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+function closeRoleModal() { document.getElementById('modal-role-overlay').classList.remove('active'); }
+function onRoleModalBg(e) { if (e.target === document.getElementById('modal-role-overlay')) closeRoleModal(); }
+
+// ── PERMISSIONS ───────────────────────────────────────────────────
+const FIELD_LABELS = {
+  seat_no:'เลขที่นักเรียน', student_id:'รหัสนักเรียน', photo_url:'รูปถ่าย',
+  theme:'ธีมนามบัตร', name_th:'ชื่อ-นามสกุล (ไทย)', name_en:'ชื่อ-นามสกุล (อังกฤษ)',
+  nickname_th:'ชื่อเล่น (ไทย)', nickname_en:'ชื่อเล่น (อังกฤษ)', transport:'การเดินทาง',
+  room:'ห้องเรียน', student_phone:'เบอร์โทรนักเรียน', student_line:'LINE ID',
+  student_email:'อีเมลนักเรียน', address:'ที่อยู่ปัจจุบัน',
+  parent1_name:'ชื่อ ผปค 1', parent1_phone:'เบอร์ ผปค 1', parent1_email:'อีเมล ผปค 1',
+  parent2_name:'ชื่อ ผปค 2', parent2_phone:'เบอร์ ผปค 2',
+};
+const FIELD_GROUPS = {
+  'ข้อมูลพื้นฐาน':     ['seat_no','student_id','photo_url','theme','name_th','name_en','nickname_th','nickname_en','transport','room'],
+  'ข้อมูลติดต่อ นร.':  ['student_phone','student_line','student_email'],
+  'ข้อมูลส่วนตัว':     ['address'],
+  'ข้อมูลผู้ปกครอง':   ['parent1_name','parent1_phone','parent1_email','parent2_name','parent2_phone'],
+};
+const PERM_COLS = ['admin','teacher','parent_own','parent_other','student'];
+
+async function loadPermissions() {
+  try {
+    const data = await api({ action:'getPermissions' });
+    S.permissions = data;
+    renderPermissions();
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+function renderPermissions() {
+  const body = document.getElementById('perm-body');
+  body.innerHTML = '';
+  Object.entries(FIELD_GROUPS).forEach(([group, fields]) => {
+    // section header
+    const htr = document.createElement('tr');
+    htr.className = 'perm-section';
+    htr.innerHTML = `<td colspan="6">${group}</td>`;
+    body.appendChild(htr);
+
+    fields.forEach(field => {
+      const p = S.permissions[field] || {};
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td title="${field}">${FIELD_LABELS[field] || field}</td>` +
+        PERM_COLS.map(col =>
+          `<td><input type="checkbox" class="perm-cb" data-field="${field}" data-col="${col}" ${p[col]?'checked':''}></td>`
+        ).join('');
+      body.appendChild(tr);
+    });
+  });
+}
+
+async function savePermissions() {
+  const newPerms = {};
+  document.querySelectorAll('.perm-cb').forEach(cb => {
+    const { field, col } = cb.dataset;
+    if (!newPerms[field]) newPerms[field] = {};
+    newPerms[field][col] = cb.checked;
+  });
+  try {
+    await api({ action:'savePermissions', data: JSON.stringify(newPerms) });
+    S.permissions = newPerms;
+    toast('✅ บันทึก Permission สำเร็จ');
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+// ── QUICK LOOKUP BY STUDENT ID ────────────────────────────────────
+function onLookupInput() {
+  // ล้าง result ทันทีเมื่อเริ่มพิมพ์ใหม่
+  const result = document.getElementById('lookup-result');
+  result.style.display = 'none';
+  result.innerHTML = '';
+}
+
+async function lookupStudent() {
+  const input = document.getElementById('lookup-input');
+  const sid   = input.value.trim();
+  if (!sid) { toast('❗ กรุณากรอกรหัสนักเรียน'); input.focus(); return; }
+
+  const result = document.getElementById('lookup-result');
+  result.style.display = 'block';
+  result.innerHTML = '<div class="lookup-not-found">⏳ กำลังค้นหา...</div>';
+
+  try {
+    const data = await api({ action: 'getStudentById', sid });
+    const s    = data.student;
+
+    const theme   = themeFromFormValue(s.theme);
+    const t       = THEME_MAP[theme] || THEME_MAP.galaxy;
+    const nick    = s.nickname_th || s.name_th?.split(' ')[0] || '?';
+    const initial = nick.charAt(0);
+    const photoHTML = s.photo_url
+      ? `<img src="${s.photo_url}" alt="${nick}" onerror="this.parentNode.textContent='${initial}'">`
+      : initial;
+    const tIcon = TRANSPORT_ICON[s.transport] || '🚶';
+
+    result.innerHTML = `
+      <div class="lookup-found">
+        <div class="lf-head">
+          <div class="lf-photo">${photoHTML}</div>
+          <div class="lf-info">
+            <div class="lf-nick">${nick}${s.nickname_en ? ' <span style="font-size:13px;opacity:.7">(${s.nickname_en})</span>' : ''}</div>
+            <div class="lf-name">${s.name_th || ''}${s.name_en ? ' · ' + s.name_en : ''}</div>
+            <div class="lf-badges">
+              <span class="lf-badge">🪪 ${s.student_id}</span>
+              ${s.room ? `<span class="lf-badge">🏫 ม.1/${s.room.toString().replace('ม.1/','')}</span>` : ''}
+              ${s.seat_no ? `<span class="lf-badge">เลขที่ ${s.seat_no}</span>` : ''}
+              <span class="lf-badge">${t.emoji} ${theme}</span>
+              ${s.transport ? `<span class="lf-badge">${tIcon} ${s.transport}</span>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="lf-actions">
+          <button class="lf-btn primary" onclick="openLookupModal()">📋 ดูข้อมูลเต็ม</button>
+          <button class="lf-btn" onclick="goToStudentRoom()">🏫 ไปห้อง ${s.room || ''}</button>
+        </div>
+      </div>`;
+
+    // เก็บ student ที่ค้นพบไว้ใน state
+    S.lookupResult = s;
+
+    // Log การค้นหา
+    await api({ action:'log', logAction:'LOOKUP_ID', target: (s.name_th||sid) + ' (รหัส ' + sid + ')' });
+
+  } catch(e) {
+    result.innerHTML = `<div class="lookup-not-found">❌ ${e.message}</div>`;
+    S.lookupResult = null;
+  }
+}
+
+function openLookupModal() {
+  const s = S.lookupResult;
+  if (!s) return;
+  // ใช้ modal เดิม แต่ populate ด้วยข้อมูลที่ lookup มาได้
+  const savedRoom = S.currentRoom;
+  S.currentRoom = (s.room || '').toString().replace('ม.1/','');
+  _populateModal(s);
+  S.currentRoom = savedRoom; // restore หลัง populate
+}
+
+async function goToStudentRoom() {
+  const s = S.lookupResult;
+  if (!s) return;
+  const roomNum = (s.room || '').toString().replace('ม.1/','');
+  if (!roomNum) { toast('❌ ไม่พบข้อมูลห้องเรียน'); return; }
+  // เคลียร์ lookup bar แล้วไปห้องนั้น
+  document.getElementById('lookup-input').value = '';
+  document.getElementById('lookup-result').style.display = 'none';
+  S.lookupResult = null;
+  await openRoom(roomNum);
+  // เลื่อน scroll ไปหา card ของนักเรียนคนนั้น
+  setTimeout(() => {
+    const card = document.getElementById('card-' + s.student_id);
+    if (card) {
+      card.scrollIntoView({ behavior:'smooth', block:'center' });
+      card.style.outline = '2px solid var(--primary)';
+      setTimeout(() => card.style.outline = '', 2000);
+    }
+  }, 600);
+}
+
+// ── SHARED MODAL POPULATE ─────────────────────────────────────────
+// refactor: แยก populate modal ออกมาเพื่อใช้ได้ทั้ง openModal() และ openLookupModal()
+function _populateModal(s) {
+  const nick  = s.nickname_th || s.name_th || '-';
+  const photo = document.getElementById('m-photo');
+  if (s.photo_url) {
+    photo.innerHTML = `<img src="${s.photo_url}" alt="${nick}" onerror="this.parentNode.textContent='${nick.charAt(0)}'">`;
+  } else {
+    photo.textContent = nick.charAt(0);
+  }
+  setText('m-nick', nick + (s.nickname_en ? ' (' + s.nickname_en + ')' : ''));
+  setText('m-name', (s.name_th || '') + (s.name_en ? ' · ' + s.name_en : ''));
+  const roomNum = S.currentRoom || (s.room || '').toString().replace('ม.1/','');
+  setText('m-room', 'ม.1/' + roomNum + ' · เลขที่ ' + (s.seat_no || '-') + ' · รหัส ' + (s.student_id || '-'));
+
+  const body = document.getElementById('m-body');
+  body.innerHTML = '';
+  body.appendChild(modalSection('ข้อมูลนักเรียน', [
+    { icon:'🪪', label:'รหัสนักเรียน', val: s.student_id },
+    { icon:'📞', label:'เบอร์โทร',     val: s.student_phone, locked: s.student_phone === null },
+    { icon:'💬', label:'LINE ID',       val: s.student_line,  locked: s.student_line === null },
+    { icon:'✉️', label:'อีเมล',        val: s.student_email, locked: s.student_email === null },
+  ]));
+  if (s.address !== null) {
+    body.appendChild(modalSection('ที่อยู่ปัจจุบัน', [
+      { icon:'🏠', label:'ที่อยู่', val: s.address || '-' },
+    ]));
+  }
+  if (s.parent1_name !== null || s.parent1_phone !== null) {
+    body.appendChild(modalSection('ข้อมูลผู้ปกครอง', [
+      { icon:'👨‍👩‍👧', label:'ผปค 1',       val: s.parent1_name  || '-' },
+      { icon:'📞',   label:'เบอร์ ผปค 1', val: s.parent1_phone || '-' },
+      { icon:'👨‍👩‍👦', label:'ผปค 2',       val: s.parent2_name  || '-' },
+      { icon:'📞',   label:'เบอร์ ผปค 2', val: s.parent2_phone || '-' },
+    ]));
+  } else {
+    const lock = document.createElement('div');
+    lock.className = 'modal-section';
+    lock.innerHTML = '<div class="ms-title">ข้อมูลผู้ปกครอง</div><div class="mf"><span class="mf-icon">🔒</span><div class="mf-content"><div class="mf-val mf-locked">ไม่มีสิทธิ์ดูข้อมูลผู้ปกครอง</div></div></div>';
+    body.appendChild(lock);
+  }
+  const tSec = document.createElement('div');
+  tSec.className = 'modal-section';
+  const tIcon = TRANSPORT_ICON[s.transport] || '🚶';
+  tSec.innerHTML = `<div class="ms-title">การเดินทาง</div><div class="transport-chip"><span>${tIcon}</span><span>${s.transport||'-'}</span></div>`;
+  body.appendChild(tSec);
+  if (S.userInfo.role === 'admin' || S.userInfo.role === 'teacher') {
+    const editBtn = document.createElement('button');
+    editBtn.className = 'modal-edit-btn';
+    editBtn.innerHTML = '✏️ แก้ไขข้อมูล';
+    editBtn.onclick = () => { closeModal(); openEditModal(s); };
+    body.appendChild(editBtn);
+  }
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────
+function show(id)             { document.getElementById(id)?.classList.remove('hidden'); }
+function hide(id)             { document.getElementById(id)?.classList.add('hidden'); }
+function toggle(id, show)     { document.getElementById(id)?.classList.toggle('hidden', !show); }
+function setText(id, txt)     { const el = document.getElementById(id); if (el) el.textContent = txt; }
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function toggleMenu() {
+  document.getElementById('user-menu').classList.toggle('hidden');
+}
+function closeMenu() {
+  document.getElementById('user-menu').classList.add('hidden');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.user-chip')) closeMenu();
+});
+</script>
+</body>
+</html>
