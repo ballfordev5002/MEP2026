@@ -512,14 +512,29 @@ auth.onAuthStateChanged(async user => {
     S.user = user;
     await initUser();
   } else {
-    showScreen('s-login');
-    hide('loading');
+    // ตรวจ redirect result ก่อน (กรณีกลับจาก Google Sign-In)
+    try {
+      const result = await auth.getRedirectResult();
+      if (!result.user) {
+        showScreen('s-login');
+        hide('loading');
+      }
+      // ถ้ามี user จาก redirect → onAuthStateChanged จะ fire ซ้ำ → initUser() อัตโนมัติ
+    } catch(e) {
+      toast('❌ ' + (e.message || 'Login ไม่สำเร็จ'));
+      showScreen('s-login');
+      hide('loading');
+    }
   }
 });
 
 async function signIn() {
-  try { await auth.signInWithPopup(provider); }
-  catch(e) { toast('❌ ' + e.message); }
+  try {
+    // ใช้ Redirect แทน Popup เพราะ GitHub Pages block popup (COOP header)
+    await auth.signInWithRedirect(provider);
+  } catch(e) {
+    toast('❌ ' + e.message);
+  }
 }
 
 async function signOut() {
