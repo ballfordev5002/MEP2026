@@ -343,6 +343,7 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 <div id="topbar" class="hidden">
   <div class="tb-left">
     <img id="tb-logo" class="tb-logo" src="" alt="โรงเรียนเทพศิรินทร์" onerror="this.style.display='none'"/>
+    <button id="btn-back" class="tb-back hidden" onclick="goBack()">‹</button>
     <div>
       <div class="tb-title" id="tb-title"><span class="lang-th">นามบัตรนักเรียน</span><span class="lang-en">Student ID Card</span></div>
       <div class="tb-sub" id="tb-sub"><span class="lang-th">เทพศิรินทร์ · ม.1 MEP 2026</span><span class="lang-en">Debsirin · Grade 7 MEP 2026</span></div>
@@ -350,6 +351,9 @@ input,select,textarea{font-family:'Prompt',sans-serif}
   </div>
   <div class="tb-right">
     <div class="admin-nav hidden" id="admin-nav">
+      <button class="adm-btn" id="adm-back" onclick="goBack()">
+        <span class="lang-th">← นามบัตร</span><span class="lang-en">← Cards</span>
+      </button>
       <button class="adm-btn" onclick="showAdminScreen('s-log')">
         <span class="lang-th">📋 Log</span><span class="lang-en">📋 Log</span>
       </button>
@@ -792,6 +796,8 @@ function showScreen(id, back) {
   S.prevScreen = back || null;
   const hasBack = !!back;
   toggle('btn-back', hasBack);
+  // hide adm-back unless showAdminScreen() will re-show it
+  hide('adm-back');
   // update admin-nav active state
   document.querySelectorAll('.adm-btn').forEach(b => b.classList.remove('active'));
 }
@@ -806,6 +812,8 @@ function showAdminScreen(id) {
   const lbl = labels[id] || {};
   setTitleBi('tb-title', lbl.th || '', lbl.en || '');
   setText('tb-sub', '');
+  // แสดงปุ่ม back + ไฮไลต์ปุ่มที่กดอยู่
+  show('adm-back');
   document.querySelectorAll('.adm-btn').forEach(b => {
     b.classList.toggle('active', b.getAttribute('onclick')?.includes(id));
   });
@@ -816,9 +824,9 @@ function showAdminScreen(id) {
 
 function goBack() {
   const t = S.prevScreen;
-  if (!t || t === 's-classes') {
-    // ไม่มีหน้าก่อนหน้า หรือเป็น classes → กลับไปห้อง 1/4
-    openRoom(4);
+  if (!t || t === 's-students') {
+    // กลับไปหน้านักเรียน (ห้องปัจจุบัน หรือ 4 ถ้ายังไม่ได้เลือก)
+    openRoom(S.currentRoom || 4);
     return;
   }
   showScreen(t);
@@ -857,15 +865,13 @@ function renderClasses() {
 
 async function openRoom(room) {
   S.currentRoom = room.toString();
-  show('btn-back');
-  S.prevScreen = 's-classes';
   setTitleBi('tb-title', 'ม.1/' + room, 'Room ' + room);
   setText('tb-sub', '');
   document.getElementById('search-input').value = '';
   document.getElementById('search-clear').classList.remove('show');
   setTransportFilter(null);
   setText('students-grid', '');
-  showScreen('s-students', 's-classes');
+  showScreen('s-students');
 
   try {
     const data = await api({ action:'getStudents', room });
@@ -1018,7 +1024,7 @@ function renderStudents() {
         <div class="flip-back">
           <div class="cb-inner">
             <div class="cb-head">${nameEn}</div>
-            <div class="cb-row"><span class="cb-icon">📞</span><span class="cb-val ${!canPhone?'cb-locked':''}">${canPhone?(s.student_phone||'-'):'🔒 ไม่มีสิทธิ์'}</span></div>
+            <div class="cb-row"><span class="cb-icon">📞</span><span class="cb-val ${!canPhone?'cb-locked':''}">${canPhone?formatPhone(s.student_phone):'🔒 ไม่มีสิทธิ์'}</span></div>
             <div class="cb-row"><span class="cb-icon">${LINE_SVG}</span><span class="cb-val ${!canLine?'cb-locked':''}">${canLine?(s.student_line||'-'):'🔒 ไม่มีสิทธิ์'}</span></div>
             <div class="cb-row"><span class="cb-icon">👨‍👩‍👧</span><span class="cb-val ${!canP1?'cb-locked':''}">${canP1?(s.parent1_name||'-'):'🔒 ไม่มีสิทธิ์'}</span></div>
             <div class="cb-row"><span class="cb-icon">🚌</span><span class="cb-val">${tIcon} ${transport||'-'}</span></div>
@@ -1397,7 +1403,7 @@ function _populateModal(s) {
   body.innerHTML = '';
   body.appendChild(modalSection('ข้อมูลนักเรียน', [
     { icon:'🪪', label:'รหัสนักเรียน', val: s.student_id },
-    { icon:'📞', label:'เบอร์โทร',     val: s.student_phone, locked: s.student_phone === null },
+    { icon:'📞', label:'เบอร์โทร',     val: formatPhone(s.student_phone), locked: s.student_phone === null },
     { icon:LINE_SVG, label:'LINE ID',    val: s.student_line,  locked: s.student_line === null },
     { icon:'✉️', label:'อีเมล',        val: s.student_email, locked: s.student_email === null },
   ]));
@@ -1409,9 +1415,9 @@ function _populateModal(s) {
   if (s.parent1_name !== null || s.parent1_phone !== null) {
     body.appendChild(modalSection('ข้อมูลผู้ปกครอง', [
       { icon:'👨‍👩‍👧', label:'ผปค 1',       val: s.parent1_name  || '-' },
-      { icon:'📞',   label:'เบอร์ ผปค 1', val: s.parent1_phone || '-' },
+      { icon:'📞',   label:'เบอร์ ผปค 1', val: formatPhone(s.parent1_phone) },
       { icon:'👨‍👩‍👦', label:'ผปค 2',       val: s.parent2_name  || '-' },
-      { icon:'📞',   label:'เบอร์ ผปค 2', val: s.parent2_phone || '-' },
+      { icon:'📞',   label:'เบอร์ ผปค 2', val: formatPhone(s.parent2_phone) },
     ]));
   } else {
     const lock = document.createElement('div');
@@ -1439,6 +1445,14 @@ function show(id)             { document.getElementById(id)?.classList.remove('h
 function hide(id)             { document.getElementById(id)?.classList.add('hidden'); }
 function toggle(id, show)     { document.getElementById(id)?.classList.toggle('hidden', !show); }
 function setText(id, txt)     { const el = document.getElementById(id); if (el) el.textContent = txt; }
+function formatPhone(val) {
+  if (val === null || val === undefined || val === '') return '-';
+  // strip ทุกอย่างที่ไม่ใช่ตัวเลข → normalize ก่อน format
+  let d = val.toString().replace(/\D/g, '');
+  if (d.length === 9) d = '0' + d;   // เติม 0 หน้าถ้า Sheets กินไป
+  if (d.length === 10) return d.slice(0,2) + '-' + d.slice(2,6) + '-' + d.slice(6); // 08-1234-5678
+  return val.toString();             // รูปแบบอื่น → แสดงตามเดิม
+}
 function setTitleBi(id, th, en) {
   const el = document.getElementById(id);
   if (!el) return;
