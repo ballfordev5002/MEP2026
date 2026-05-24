@@ -65,10 +65,14 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .um-item:hover{background:var(--surface2)}
 .um-item.danger{color:var(--red)}
 .um-sep{border:none;border-top:1px solid var(--border);margin:4px 0}
-/* admin nav */
-.admin-nav{display:flex;gap:6px}
-.adm-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 10px;font-size:11px;transition:all .15s}
-.adm-btn:hover,.adm-btn.active{border-color:var(--primary);color:var(--primary);background:var(--primary-bg)}
+/* ── HAMBURGER MENU ───────────────────────────────────────── */
+.ham-btn{background:none;border:1px solid var(--border);color:var(--text);border-radius:8px;width:36px;height:36px;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.ham-btn:hover,.ham-btn.open{border-color:var(--primary);color:var(--primary);background:var(--primary-bg)}
+.ham-menu{position:absolute;top:100%;left:0;right:0;background:var(--surface);border-bottom:2px solid var(--primary);z-index:200;padding:6px 8px;display:flex;flex-direction:column;gap:2px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.ham-item{background:none;border:none;color:var(--text);padding:11px 14px;text-align:left;font-size:13px;font-weight:500;border-radius:8px;transition:all .15s;display:flex;align-items:center;gap:8px}
+.ham-item:hover,.ham-item.active{background:var(--primary-bg);color:var(--primary)}
+.ham-item.back-item{color:var(--muted);font-size:12px;border-bottom:1px solid var(--border);margin-bottom:4px;padding-bottom:13px;border-radius:0}
+.ham-sep{border:none;border-top:1px solid var(--border);margin:2px 0}
 .refresh-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;width:32px;height:32px;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;line-height:1}
 .refresh-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-bg)}
 .refresh-btn.spinning{animation:spin .6s linear infinite;color:var(--primary)}
@@ -340,7 +344,7 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 </div>
 
 <!-- ─── TOPBAR (shared) ──────────────────────────────────────── -->
-<div id="topbar" class="hidden">
+<div id="topbar" class="hidden" style="position:relative">
   <div class="tb-left">
     <img id="tb-logo" class="tb-logo" src="" alt="โรงเรียนเทพศิรินทร์" onerror="this.style.display='none'"/>
     <button id="btn-back" class="tb-back hidden" onclick="goBack()">‹</button>
@@ -350,20 +354,7 @@ input,select,textarea{font-family:'Prompt',sans-serif}
     </div>
   </div>
   <div class="tb-right">
-    <div class="admin-nav hidden" id="admin-nav">
-      <button class="adm-btn" id="adm-back" onclick="goBack()">
-        <span class="lang-th">← นามบัตร</span><span class="lang-en">← Cards</span>
-      </button>
-      <button class="adm-btn" onclick="showAdminScreen('s-log')">
-        <span class="lang-th">📋 Log</span><span class="lang-en">📋 Log</span>
-      </button>
-      <button class="adm-btn" onclick="showAdminScreen('s-roles')">
-        <span class="lang-th">👥 บทบาท</span><span class="lang-en">👥 Roles</span>
-      </button>
-      <button class="adm-btn" onclick="showAdminScreen('s-permissions')">
-        <span class="lang-th">🔐 สิทธิ์</span><span class="lang-en">🔐 Perms</span>
-      </button>
-    </div>
+    <button class="ham-btn hidden" id="ham-btn" onclick="toggleHamMenu(event)" title="เมนู">☰</button>
     <button class="refresh-btn hidden" id="refresh-btn" onclick="refreshCurrent()" title="รีเฟรชข้อมูล">↻</button>
     <div class="user-chip" onclick="toggleMenu()">
       <div class="u-av" id="u-av">?</div>
@@ -391,6 +382,21 @@ input,select,textarea{font-family:'Prompt',sans-serif}
         </button>
       </div>
     </div>
+  </div>
+  <!-- ── Hamburger dropdown ─────────────────────────────────── -->
+  <div class="ham-menu hidden" id="ham-menu">
+    <button class="ham-item back-item" id="ham-back" onclick="goBack();closeHamMenu()">
+      <span class="lang-th">← กลับนามบัตร</span><span class="lang-en">← Back to Cards</span>
+    </button>
+    <button class="ham-item" id="ham-log" onclick="showAdminScreen('s-log');closeHamMenu()">
+      <span>📋</span><span class="lang-th">Access Log</span><span class="lang-en">Access Log</span>
+    </button>
+    <button class="ham-item" id="ham-roles" onclick="showAdminScreen('s-roles');closeHamMenu()">
+      <span>👥</span><span class="lang-th">จัดการ Role</span><span class="lang-en">Manage Roles</span>
+    </button>
+    <button class="ham-item" id="ham-perms" onclick="showAdminScreen('s-permissions');closeHamMenu()">
+      <span>🔐</span><span class="lang-th">สิทธิ์การเข้าถึง</span><span class="lang-en">Permissions</span>
+    </button>
   </div>
 </div>
 
@@ -732,7 +738,7 @@ async function initUser() {
     show('topbar');
     show('refresh-btn');
     if (info.role === 'admin' || info.role === 'teacher') {
-      show('admin-nav');
+      show('ham-btn');
     }
 
     await api({ action:'log', logAction:'LOGIN', target:'ระบบ' });
@@ -796,10 +802,11 @@ function showScreen(id, back) {
   S.prevScreen = back || null;
   const hasBack = !!back;
   toggle('btn-back', hasBack);
-  // hide adm-back unless showAdminScreen() will re-show it
-  hide('adm-back');
-  // update admin-nav active state
-  document.querySelectorAll('.adm-btn').forEach(b => b.classList.remove('active'));
+  // hide ham-back unless showAdminScreen() will re-show it
+  hide('ham-back');
+  closeHamMenu();
+  // clear active state on all ham-items
+  document.querySelectorAll('.ham-item').forEach(b => b.classList.remove('active'));
 }
 
 function showAdminScreen(id) {
@@ -812,9 +819,9 @@ function showAdminScreen(id) {
   const lbl = labels[id] || {};
   setTitleBi('tb-title', lbl.th || '', lbl.en || '');
   setText('tb-sub', '');
-  // แสดงปุ่ม back + ไฮไลต์ปุ่มที่กดอยู่
-  show('adm-back');
-  document.querySelectorAll('.adm-btn').forEach(b => {
+  // แสดง ham-back + ไฮไลต์เมนูที่กดอยู่
+  show('ham-back');
+  document.querySelectorAll('.ham-item').forEach(b => {
     b.classList.toggle('active', b.getAttribute('onclick')?.includes(id));
   });
   if (id === 's-log') loadLog();
@@ -1474,6 +1481,20 @@ function toggleMenu() {
 function closeMenu() {
   document.getElementById('user-menu').classList.add('hidden');
 }
+function toggleHamMenu(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('ham-menu');
+  const btn  = document.getElementById('ham-btn');
+  const isOpen = !menu.classList.contains('hidden');
+  if (isOpen) { closeHamMenu(); }
+  else { menu.classList.remove('hidden'); btn.classList.add('open'); closeMenu(); }
+}
+function closeHamMenu() {
+  document.getElementById('ham-menu')?.classList.add('hidden');
+  document.getElementById('ham-btn')?.classList.remove('open');
+}
+// ปิด ham-menu เมื่อคลิกนอกเมนู
+document.addEventListener('click', () => closeHamMenu());
 
 // ── THEME SWITCHER ────────────────────────────────────────────────
 const THEME_NAMES = { 1:'Dark', 2:'Light' };
