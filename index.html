@@ -125,7 +125,9 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .flip-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1);cursor:pointer}
 .flip-wrap.flipped .flip-inner{transform:rotateY(180deg)}
 .flip-front,.flip-back{position:absolute;inset:0;border-radius:var(--r);backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
-.flip-back{transform:rotateY(180deg)}
+.flip-back{transform:rotateY(180deg);pointer-events:none}
+.flip-wrap.flipped .flip-front{pointer-events:none}
+.flip-wrap.flipped .flip-back{pointer-events:auto}
 /* ── PER-STUDENT CARD COLORS ────────────────────────────────── */
 .th-debsirin{background:linear-gradient(160deg,#00622a,#009344 50%,#fbb040 110%);color:#fff}
 .th-galaxy{background:linear-gradient(160deg,#1a1147,#3d2196 50%,#7c3aed 110%);color:#fff}
@@ -340,8 +342,8 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 <div id="topbar" class="hidden">
   <div class="tb-left">
     <div>
-      <div class="tb-title" id="tb-title">นามบัตรนักเรียน</div>
-      <div class="tb-sub" id="tb-sub">เทพศิรินทร์ · ม.1 MEP 2026</div>
+      <div class="tb-title" id="tb-title"><span class="lang-th">นามบัตรนักเรียน</span><span class="lang-en">Student ID Card</span></div>
+      <div class="tb-sub" id="tb-sub"><span class="lang-th">เทพศิรินทร์ · ม.1 MEP 2026</span><span class="lang-en">Debsirin · Grade 7 MEP 2026</span></div>
     </div>
   </div>
   <div class="tb-right">
@@ -596,6 +598,8 @@ function themeFromFormValue(v) {
 const TRANSPORT_ICON = {
   'รถส่วนตัว':'🚗','รถโรงเรียน':'🚌','รถเมล์':'🚍','MRT':'🚇','BTS':'🚉','อื่นๆ':'🚶',
 };
+// LINE official icon (green #06C755, white chat bubble + LINE text)
+const LINE_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;flex-shrink:0"><rect width="24" height="24" rx="6" fill="#06C755"/><path fill="#fff" d="M20.5 10.8C20.5 6.4 16.8 2.8 12 2.8S3.5 6.4 3.5 10.8c0 3.8 3.4 7 8 7.6.3.1.8.2.9.6.1.3 0 .7 0 1l-.2.9c0 .3-.3 1.2 1 .7s7.2-4.2 9.8-7.2c1.5-1.7 2.5-3.6 2.5-5.8z"/><text x="6.3" y="13.5" font-size="6" font-family="Arial,sans-serif" font-weight="900" fill="#06C755">LINE</text></svg>`;
 
 // ── STATE ────────────────────────────────────────────────────────
 let S = {
@@ -791,8 +795,13 @@ function showScreen(id, back) {
 
 function showAdminScreen(id) {
   showScreen(id, 's-students');
-  const labels = { 's-log':'📋 Access Log', 's-roles':'👥 จัดการ Role', 's-permissions':'🔐 Permission Matrix' };
-  setText('tb-title', labels[id] || '');
+  const labels = {
+    's-log':         { th:'📋 Access Log',       en:'📋 Access Log' },
+    's-roles':       { th:'👥 จัดการ Role',       en:'👥 Manage Roles' },
+    's-permissions': { th:'🔐 Permission Matrix', en:'🔐 Permission Matrix' },
+  };
+  const lbl = labels[id] || {};
+  setTitleBi('tb-title', lbl.th || '', lbl.en || '');
   setText('tb-sub', '');
   document.querySelectorAll('.adm-btn').forEach(b => {
     b.classList.toggle('active', b.getAttribute('onclick')?.includes(id));
@@ -815,8 +824,8 @@ function goBack() {
 
 // ── CLASSES ──────────────────────────────────────────────────────
 function renderClasses() {
-  setText('tb-title', 'นามบัตรนักเรียน');
-  setText('tb-sub', CFG.GRADE + ' · ' + CFG.SCHOOL_NAME);
+  setTitleBi('tb-title', 'นามบัตรนักเรียน', 'Student ID Card');
+  setTitleBi('tb-sub', CFG.GRADE + ' · ' + CFG.SCHOOL_NAME, 'Grade 7 · Debsirin');
   hide('btn-back');
 
   // populate log room filter
@@ -847,7 +856,7 @@ async function openRoom(room) {
   S.currentRoom = room.toString();
   show('btn-back');
   S.prevScreen = 's-classes';
-  setText('tb-title', 'ม.1/' + room);
+  setTitleBi('tb-title', 'ม.1/' + room, 'Room ' + room);
   setText('tb-sub', '');
   document.getElementById('search-input').value = '';
   document.getElementById('search-clear').classList.remove('show');
@@ -859,7 +868,7 @@ async function openRoom(room) {
     const data = await api({ action:'getStudents', room });
     S.students = data.students || [];
     S.filtered = [...S.students];
-    setText('tb-sub', S.students.length + ' คน');
+    setTitleBi('tb-sub', S.students.length + ' คน', S.students.length + ' students');
     const cc = document.getElementById('cc-' + room);
     if (cc) cc.textContent = S.students.length + ' คน';
     renderStudents();
@@ -908,7 +917,7 @@ function applyFilters() {
   // แสดงจำนวนที่ filter แล้ว
   const total = S.students.length;
   const shown = S.filtered.length;
-  setText('tb-sub', shown === total ? total + ' คน' : shown + ' / ' + total + ' คน');
+  setTitleBi('tb-sub', shown === total ? total + ' คน' : shown + '/' + total + ' คน', shown === total ? total + ' students' : shown + '/' + total + ' students');
   renderStudents();
 }
 
@@ -962,13 +971,16 @@ function renderStudents() {
           <div class="v3-accent ${theme}">
             <div class="v3-top">
               <span class="v3-seat">No. ${seat}</span>
-              <button class="v3-theme-btn" onclick="cycleTheme(event,'${sid}')">${t.emoji}</button>
+              <div style="display:flex;gap:3px">
+                <button class="v3-theme-btn" onclick="toggleLang(event)" title="TH/EN"><span class="lang-th" style="font-size:9px;font-weight:700">EN</span><span class="lang-en" style="font-size:9px;font-weight:700">TH</span></button>
+                <button class="v3-theme-btn" onclick="cycleTheme(event,'${sid}')">${t.emoji}</button>
+              </div>
             </div>
             <div class="v3-photo">${photoHTML}</div>
           </div>
           <div class="v3-body">
-            <div class="v3-nick">${nickTh}</div>
-            <div class="v3-name">${s.name_th || ''}${nickEn !== nickTh ? ' · <span style="opacity:.6">'+nickEn+'</span>' : ''}</div>
+            <div class="v3-nick"><span class="lang-th">${nickTh}</span><span class="lang-en">${nickEn}</span></div>
+            <div class="v3-name"><span class="lang-th">${s.name_th || ''}</span><span class="lang-en">${nameEn || ''}</span></div>
             <div class="v3-tags"><span class="v3-tag">${tIcon} ${transport || '-'}</span></div>
           </div>
         </div>`;
@@ -979,11 +991,14 @@ function renderStudents() {
           <div class="v2-front">
             <div class="v2-head">
               <span class="v2-seat">No.&thinsp;${seat}</span>
-              <button class="v2-theme-btn" onclick="cycleTheme(event,'${sid}')">${t.emoji}</button>
+              <div style="display:flex;gap:3px">
+                <button class="v2-theme-btn" onclick="toggleLang(event)" title="TH/EN"><span class="lang-th" style="font-size:9px;font-weight:700">EN</span><span class="lang-en" style="font-size:9px;font-weight:700">TH</span></button>
+                <button class="v2-theme-btn" onclick="cycleTheme(event,'${sid}')">${t.emoji}</button>
+              </div>
             </div>
             <div class="v2-photo">${photoHTML}</div>
-            <div class="v2-nick">${nickTh}</div>
-            <div class="v2-name">${s.name_th || ''}${nickEn !== nickTh ? '<br/><span style="opacity:.65">'+nickEn+'</span>' : ''}</div>
+            <div class="v2-nick"><span class="lang-th">${nickTh}</span><span class="lang-en">${nickEn}</span></div>
+            <div class="v2-name"><span class="lang-th">${s.name_th || ''}</span><span class="lang-en">${nameEn || ''}</span></div>
             <div class="v2-transport">${tIcon} ${transport || '-'}</div>
             ${CFG.LOGO_URL ? `<div class="v2-wm"><img src="${CFG.LOGO_URL}" alt="" onerror="this.style.display='none'"/></div>` : ''}
             <div class="v2-hint">↻</div>
@@ -1001,7 +1016,7 @@ function renderStudents() {
           <div class="cb-inner">
             <div class="cb-head">${nameEn}</div>
             <div class="cb-row"><span class="cb-icon">📞</span><span class="cb-val ${!canPhone?'cb-locked':''}">${canPhone?(s.student_phone||'-'):'🔒 ไม่มีสิทธิ์'}</span></div>
-            <div class="cb-row"><span class="cb-icon">💬</span><span class="cb-val ${!canLine?'cb-locked':''}">${canLine?(s.student_line||'-'):'🔒 ไม่มีสิทธิ์'}</span></div>
+            <div class="cb-row"><span class="cb-icon">${LINE_SVG}</span><span class="cb-val ${!canLine?'cb-locked':''}">${canLine?(s.student_line||'-'):'🔒 ไม่มีสิทธิ์'}</span></div>
             <div class="cb-row"><span class="cb-icon">👨‍👩‍👧</span><span class="cb-val ${!canP1?'cb-locked':''}">${canP1?(s.parent1_name||'-'):'🔒 ไม่มีสิทธิ์'}</span></div>
             <div class="cb-row"><span class="cb-icon">🚌</span><span class="cb-val">${tIcon} ${transport||'-'}</span></div>
             <button class="cb-detail-btn" onclick="openModal('${sid}')">ดูข้อมูลเต็ม →</button>
@@ -1380,7 +1395,7 @@ function _populateModal(s) {
   body.appendChild(modalSection('ข้อมูลนักเรียน', [
     { icon:'🪪', label:'รหัสนักเรียน', val: s.student_id },
     { icon:'📞', label:'เบอร์โทร',     val: s.student_phone, locked: s.student_phone === null },
-    { icon:'💬', label:'LINE ID',       val: s.student_line,  locked: s.student_line === null },
+    { icon:LINE_SVG, label:'LINE ID',    val: s.student_line,  locked: s.student_line === null },
     { icon:'✉️', label:'อีเมล',        val: s.student_email, locked: s.student_email === null },
   ]));
   if (s.address !== null) {
@@ -1421,6 +1436,11 @@ function show(id)             { document.getElementById(id)?.classList.remove('h
 function hide(id)             { document.getElementById(id)?.classList.add('hidden'); }
 function toggle(id, show)     { document.getElementById(id)?.classList.toggle('hidden', !show); }
 function setText(id, txt)     { const el = document.getElementById(id); if (el) el.textContent = txt; }
+function setTitleBi(id, th, en) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = `<span class="lang-th">${th}</span><span class="lang-en">${en || th}</span>`;
+}
 
 let toastTimer;
 function toast(msg) {
@@ -1451,6 +1471,12 @@ function setTheme(n) {
 }
 
 // ── LANGUAGE TOGGLE ───────────────────────────────────────────────
+function toggleLang(e) {
+  e.stopPropagation();
+  const cur = document.documentElement.getAttribute('data-lang') || 'th';
+  setLang(cur === 'th' ? 'en' : 'th');
+}
+
 function setLang(lang) {
   document.documentElement.setAttribute('data-lang', lang);
   document.documentElement.setAttribute('lang', lang);
