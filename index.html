@@ -1184,7 +1184,7 @@ function renderRoles() {
     <tr>
       <td>${r.email||''}</td>
       <td><span class="role-badge rb-${r.role||'none'}">${ROLE_LABEL[r.role]||r.role}</span></td>
-      <td>${r.room ? 'ม.1/'+r.room : '-'}</td>
+      <td>${r.room ? 'ม.1/'+r.room.toString().replace(/^ม\.1\//,'') : '-'}</td>
       <td>${r.student_id||'-'}</td>
       <td style="color:var(--muted);font-size:11px">${r.note||''}</td>
       <td>
