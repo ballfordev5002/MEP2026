@@ -87,14 +87,14 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .refresh-btn.spinning{animation:spin .6s linear infinite;color:var(--primary)}
 /* ── THEME & LANG CONTROLS ───────────────────────────────────── */
 .um-section{padding:6px 10px 2px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.theme-row{display:flex;gap:6px;padding:8px 12px}
-.th-swatch{width:24px;height:24px;border-radius:8px;border:2px solid transparent;cursor:pointer;transition:all .15s;flex-shrink:0}
-.th-swatch:hover{transform:scale(1.15)}
-.th-swatch.active{border-color:var(--primary);transform:scale(1.1)}
-.th-swatch[data-t="1"]{background:linear-gradient(135deg,#0c1410,#c89211)}
-.th-swatch[data-t="2"]{background:linear-gradient(135deg,#071812,#fbb040)}
-.th-swatch[data-t="3"]{background:linear-gradient(135deg,#05140c,#f4b500)}
-.th-swatch[data-t="4"]{background:linear-gradient(135deg,#f0fdf4,#d97706)}
+.theme-row{display:flex;gap:6px;padding:8px 12px;align-items:center}
+.th-swatch{width:34px;height:34px;border-radius:10px;border:2px solid transparent;cursor:pointer;transition:all .15s;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px}
+.th-swatch:hover{transform:scale(1.12)}
+.th-swatch.active{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-bg)}
+.th-swatch[data-t="1"]{background:#15211a}
+.th-swatch[data-t="2"]{background:#0e2218}
+.th-swatch[data-t="3"]{background:#091a10}
+.th-swatch[data-t="4"]{background:#f0f7f1;border-color:#d1d5db}
 .lang-row{display:flex;gap:4px;padding:4px 12px 10px}
 .lang-btn{flex:1;background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
 .lang-btn.active{background:var(--primary-bg);border-color:var(--primary);color:var(--primary)}
@@ -166,6 +166,30 @@ input,select,textarea{font-family:'Prompt',sans-serif}
 .cb-locked{color:var(--muted);font-size:10px;font-style:italic}
 .cb-detail-btn{margin-top:auto;background:var(--primary-bg);color:var(--primary);border:1px solid rgba(74,222,128,.3);border-radius:8px;padding:6px;font-size:11px;font-weight:600;width:100%;transition:all .15s}
 .cb-detail-btn:hover{background:var(--primary);color:#fff}
+/* ── CARD LAYOUT: TRADING CARD (theme 2) ───────────────────── */
+.cf-h{flex-direction:row!important;align-items:center!important;padding:10px 10px 10px 12px!important;gap:10px!important}
+.cf-h .photo-wrap{width:60px;height:60px;flex-shrink:0;margin-bottom:0!important;border-width:2px}
+.cf-h .h-right{flex:1;display:flex;flex-direction:column;min-width:0}
+.cf-h .h-nick{font-size:17px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
+.cf-h .h-name{font-size:8.5px;opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.cf-h .h-id{font-size:8.5px;opacity:.5;margin-top:2px}
+.cf-h .h-bar{height:2px;background:rgba(255,255,255,.15);border-radius:1px;margin-top:8px}
+.cf-h .h-fill{height:100%;background:rgba(255,255,255,.55);border-radius:1px}
+.cf-h .h-transport{font-size:9px;opacity:.7;margin-top:6px}
+/* ── CARD LAYOUT: MODERN (theme 3) ─────────────────────────── */
+.cf-m{justify-content:center!important;gap:5px!important;padding:12px 10px!important}
+.cf-m .photo-wrap{width:78px;height:78px;margin-bottom:0!important;border-width:3px}
+.cf-m .m-line{width:32px;height:2px;background:rgba(255,255,255,.35);border-radius:1px}
+.cf-m .m-badge{font-size:9px;background:rgba(255,255,255,.12);padding:3px 11px;border-radius:10px;margin-top:2px}
+/* ── CARD LAYOUT: LIGHT (theme 4) ──────────────────────────── */
+.cf-l{flex-direction:row!important;align-items:center!important;padding:12px!important;gap:12px!important;background:var(--surface)!important;color:var(--text)!important}
+.cf-l .photo-wrap{width:68px;height:68px;flex-shrink:0;margin-bottom:0!important;border-color:var(--border)!important;background:var(--surface2)!important;color:var(--primary)!important}
+.cf-l .l-right{flex:1;display:flex;flex-direction:column;min-width:0}
+.cf-l .l-nick{font-size:17px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+.cf-l .l-name{font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;opacity:.65;text-align:left}
+.cf-l .l-transport{font-size:9px;margin-top:8px;background:var(--surface2);padding:3px 9px;border-radius:10px;display:inline-flex;align-items:center;gap:4px;color:var(--muted)}
+.cf-l .cf-id{background:var(--surface2)!important;color:var(--muted)!important}
+.cf-l .cf-hint{color:var(--muted)}
 /* ── NO RESULTS ────────────────────────────────────────────── */
 .no-results{grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--muted)}
 .nr-emoji{font-size:40px;margin-bottom:12px}
@@ -336,10 +360,10 @@ input,select,textarea{font-family:'Prompt',sans-serif}
         <hr class="um-sep"/>
         <div class="um-section"><span class="lang-th">ธีม</span><span class="lang-en">Theme</span></div>
         <div class="theme-row">
-          <div class="th-swatch active" data-t="1" onclick="setTheme(1)" title="Yearbook"></div>
-          <div class="th-swatch" data-t="2" onclick="setTheme(2)" title="Trading Card"></div>
-          <div class="th-swatch" data-t="3" onclick="setTheme(3)" title="Modern"></div>
-          <div class="th-swatch" data-t="4" onclick="setTheme(4)" title="Light"></div>
+          <div class="th-swatch active" data-t="1" onclick="setTheme(1)" title="Yearbook">📚</div>
+          <div class="th-swatch" data-t="2" onclick="setTheme(2)" title="Trading Card">🃏</div>
+          <div class="th-swatch" data-t="3" onclick="setTheme(3)" title="Modern">✦</div>
+          <div class="th-swatch" data-t="4" onclick="setTheme(4)" title="Light">☀️</div>
           <span style="font-size:10px;color:var(--muted);align-self:center;margin-left:4px" id="theme-label">Yearbook</span>
         </div>
         <div class="um-section"><span class="lang-th">ภาษา</span><span class="lang-en">Language</span></div>
@@ -856,11 +880,17 @@ function renderStudents() {
     return;
   }
 
+  const appTheme = document.documentElement.dataset.theme || '1';
+
   S.filtered.forEach(s => {
-    const theme = themeFromFormValue(s.theme);
-    const t     = THEME_MAP[theme] || THEME_MAP.galaxy;
-    const sid   = s.student_id || '';
+    const theme  = themeFromFormValue(s.theme);
+    const t      = THEME_MAP[theme] || THEME_MAP.galaxy;
+    const sid    = s.student_id || '';
+    const seat   = s.seat_no || sid;
     const nickTh = s.nickname_th || s.name_th?.split(' ')[0] || '?';
+    // language fallback: ถ้าไม่มีข้อมูล EN → แสดง TH แทน
+    const nickEn  = s.nickname_en  || nickTh;
+    const nameEn  = s.name_en      || s.name_th || '';
     const initials = nickTh.charAt(0);
     const photoHTML = s.photo_url
       ? `<img src="${s.photo_url}" alt="${nickTh}" onerror="this.parentNode.textContent='${initials}'">`
@@ -872,32 +902,92 @@ function renderStudents() {
 
     const transport = s.transport || '';
     const tIcon = TRANSPORT_ICON[transport] || '🚶';
+    const logo  = CFG.LOGO_URL
+      ? `<img src="${CFG.LOGO_URL}" alt="" style="position:absolute;bottom:7px;left:7px;width:20px;height:20px;border-radius:50%;opacity:.55;object-fit:cover" onerror="this.style.display='none'"/>`
+      : '';
+
+    // ── 4 CARD FRONT LAYOUTS ──────────────────────────────────
+    let frontHTML;
+    if (appTheme === '2') {
+      // TRADING CARD: photo kiri, info kanan, progress bar
+      const pct = Math.min(100, (parseInt(sid) % 30 + 1) / 30 * 100).toFixed(0);
+      frontHTML = `
+        <div class="flip-front ${t.css}">
+          <div class="cf-inner cf-h">
+            <div class="cf-id">#${seat}</div>
+            <div class="photo-wrap">${photoHTML}</div>
+            <div class="h-right">
+              <div class="h-nick">${nickTh}</div>
+              <div class="h-name">${s.name_th || ''}</div>
+              <div class="h-id">ID: ${sid}</div>
+              <div class="h-bar"><div class="h-fill" style="width:${pct}%"></div></div>
+              <div class="h-transport">${tIcon} ${transport || '-'}</div>
+            </div>
+          </div>
+          <button class="cf-theme-btn" onclick="cycleTheme(event,'${sid}')" title="เปลี่ยนธีม">${t.emoji}</button>
+          <div class="cf-hint">↩</div>
+        </div>`;
+    } else if (appTheme === '3') {
+      // MODERN: ภาพกลาง ใหญ่ เส้นคั่น badge
+      frontHTML = `
+        <div class="flip-front ${t.css}">
+          <div class="cf-inner cf-m">
+            <div class="cf-id">#${seat}</div>
+            <button class="cf-theme-btn" onclick="cycleTheme(event,'${sid}')" title="เปลี่ยนธีม">${t.emoji}</button>
+            <div class="photo-wrap">${photoHTML}</div>
+            <div class="m-line"></div>
+            <div class="cf-nick">${nickTh}</div>
+            <div class="cf-name">${s.name_th || ''}</div>
+            <div class="m-badge">${tIcon} ${transport || 'MEP 2026'}</div>
+          </div>
+          ${logo}
+        </div>`;
+    } else if (appTheme === '4') {
+      // LIGHT: ใช้สี surface (ไม่ใช้ card theme color), horizontal
+      frontHTML = `
+        <div class="flip-front">
+          <div class="cf-inner cf-l">
+            <div class="cf-id">#${seat}</div>
+            <div class="photo-wrap">${photoHTML}</div>
+            <div class="l-right">
+              <div class="l-nick">${nickTh}</div>
+              <div class="l-name">${s.name_th || ''}</div>
+              <div class="l-transport">${tIcon} ${transport || '-'}</div>
+            </div>
+          </div>
+          <button class="cf-theme-btn" style="background:var(--surface2);color:var(--muted)" onclick="cycleTheme(event,'${sid}')" title="เปลี่ยนธีม">${t.emoji}</button>
+          <div class="cf-hint">↩</div>
+        </div>`;
+    } else {
+      // YEARBOOK (theme 1): layout เดิม vertical centered
+      frontHTML = `
+        <div class="flip-front ${t.css}">
+          <div class="cf-inner">
+            <div class="cf-id">#${seat}</div>
+            <button class="cf-theme-btn" onclick="cycleTheme(event,'${sid}')" title="เปลี่ยนธีม">${t.emoji}</button>
+            <div class="photo-wrap">${photoHTML}</div>
+            <div class="cf-nick">${nickTh}</div>
+            <div class="cf-name">${s.name_th || ''}<br/><span style="opacity:.6">${nickEn !== nickTh ? nickEn : ''}</span></div>
+            <div class="cf-transport">${tIcon} ${transport || '-'}</div>
+            <div class="cf-hint">↩</div>
+            ${logo}
+          </div>
+        </div>`;
+    }
 
     const wrap = document.createElement('div');
     wrap.className = 'flip-wrap';
     wrap.id = 'card-' + sid;
     wrap.innerHTML = `
       <div class="flip-inner">
-        <div class="flip-front ${t.css}">
-          <div class="cf-inner">
-            <div class="cf-id">#${s.seat_no || sid}</div>
-            <button class="cf-theme-btn" onclick="cycleTheme(event,'${sid}')" title="เปลี่ยนธีม">${t.emoji}</button>
-            <div class="photo-wrap">${photoHTML}</div>
-            <div class="cf-nick">${nickTh}</div>
-            <div class="cf-name">${s.name_th || ''}<br/><span style="opacity:.6">${s.nickname_en || ''}</span></div>
-            <div class="cf-transport">${tIcon} ${transport}</div>
-            <div class="cf-hint">↩</div>
-            ${CFG.LOGO_URL?`<img src="${CFG.LOGO_URL}" alt="" style="position:absolute;bottom:7px;left:7px;width:20px;height:20px;border-radius:50%;opacity:.55;object-fit:cover" onerror="this.style.display='none'"/>`:''}
-
-          </div>
-        </div>
+        ${frontHTML}
         <div class="flip-back">
           <div class="cb-inner">
-            <div class="cb-head">${s.name_en || ''}</div>
+            <div class="cb-head">${nameEn}</div>
             <div class="cb-row"><span class="cb-icon">📞</span><span class="cb-val ${!canPhone?'cb-locked':''}">${canPhone?(s.student_phone||'-'):'🔒 ไม่มีสิทธิ์'}</span></div>
             <div class="cb-row"><span class="cb-icon">💬</span><span class="cb-val ${!canLine?'cb-locked':''}">${canLine?(s.student_line||'-'):'🔒 ไม่มีสิทธิ์'}</span></div>
             <div class="cb-row"><span class="cb-icon">👨‍👩‍👧</span><span class="cb-val ${!canP1?'cb-locked':''}">${canP1?(s.parent1_name||'-'):'🔒 ไม่มีสิทธิ์'}</span></div>
-            <div class="cb-row"><span class="cb-icon">🚌</span><span class="cb-val">${tIcon} ${transport}</span></div>
+            <div class="cb-row"><span class="cb-icon">🚌</span><span class="cb-val">${tIcon} ${transport||'-'}</span></div>
             <button class="cb-detail-btn" onclick="openModal('${sid}')">ดูข้อมูลเต็ม →</button>
           </div>
         </div>
@@ -1340,6 +1430,8 @@ function setTheme(n) {
   document.querySelectorAll('.th-swatch').forEach(s => s.classList.toggle('active', s.dataset.t == n));
   const lbl = document.getElementById('theme-label');
   if (lbl) lbl.textContent = THEME_NAMES[n] || '';
+  // re-render cards ให้ใช้ layout ของ theme ใหม่
+  if (S.filtered && S.filtered.length) renderStudents();
 }
 
 // ── LANGUAGE TOGGLE ───────────────────────────────────────────────
