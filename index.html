@@ -624,6 +624,7 @@ async function signIn() {
 
 async function signOut() {
   closeMenu();
+  _cachedToken = null; _tokenExpiry = 0; // clear token cache
   await auth.signOut();
   S = { user:null, userInfo:null, currentRoom:null, students:[], filtered:[], permissions:{}, roles:[], logs:[], prevScreen:null, editingEmail:null };
   show('loading');
@@ -632,8 +633,21 @@ async function signOut() {
 }
 
 // ── API ──────────────────────────────────────────────────────────
+// cachedToken: refresh ครั้งเดียวต่อ session ไม่ force-refresh ทุก call
+let _cachedToken = null;
+let _tokenExpiry = 0;
+
+async function getToken() {
+  const now = Date.now();
+  if (_cachedToken && now < _tokenExpiry - 60_000) return _cachedToken;
+  // token หมดอายุหรือไม่มี → refresh ครั้งเดียว
+  _cachedToken = await S.user.getIdToken(true);
+  _tokenExpiry = now + 55 * 60 * 1000; // Firebase token อายุ 60 นาที
+  return _cachedToken;
+}
+
 async function api(params) {
-  const token = await S.user.getIdToken(true);
+  const token = await getToken();
   const qs    = new URLSearchParams({ ...params, token }).toString();
   const res   = await fetch(CFG.APPS_SCRIPT_URL + '?' + qs, { redirect:'follow' });
   const text  = await res.text();
@@ -944,7 +958,7 @@ function renderStudents() {
       </div>`;
 
     wrap.querySelector('.flip-inner').addEventListener('click', e => {
-      if (e.target.closest('.cb-detail-btn') || e.target.closest('.cf-theme-btn')) return;
+      if (e.target.closest('.cb-detail-btn') || e.target.closest('.v2-theme-btn') || e.target.closest('.v3-theme-btn')) return;
       wrap.classList.toggle('flipped');
     });
 
