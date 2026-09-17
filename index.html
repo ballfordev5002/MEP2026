@@ -642,55 +642,36 @@ let S = {
 firebase.initializeApp(FIREBASE_CONFIG);
 const auth     = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
+provider.setCustomParameters({ prompt: 'select_account' });
 
-// ── AUTH FLOW (Firebase v10 + GitHub Pages) ────────────────────────
-// ต้องเรียก getRedirectResult() แยกก่อน onAuthStateChanged
-// เพราะ v10 อาจ consume redirect result ก่อน callback ทำงาน
-auth.getRedirectResult()
-  .then(result => {
-    // ถ้า redirect สำเร็จ Firebase จะ fire onAuthStateChanged(user) เองอัตโนมัติ
-    if (result?.user) return; // รอ onAuthStateChanged
-    // ไม่มี redirect ที่กำลังประมวลผล → setup listener ตามปกติ
-  })
-  .catch(e => {
-    const errBox = document.getElementById('login-error');
-    if (errBox) { errBox.textContent = '❌ Redirect error: ' + e.message; errBox.style.display = 'block'; }
+// ── AUTH FLOW ───────────────────────────────────────────────────
+// ใช้ Popup เท่านั้น — ไม่ fallback redirect เพราะ mobile browser
+// partition storage (cross-origin mep2026.firebaseapp.com → github.io)
+// ทำให้เกิด error "missing initial state"
+auth.onAuthStateChanged(async user => {
+  if (user) {
+    S.user = user;
+    await initUser();
+  } else {
     showScreen('s-login');
     hide('loading');
-  })
-  .finally(() => {
-    // setup listener หลังจาก redirect ถูก process แล้วเท่านั้น
-    auth.onAuthStateChanged(async user => {
-      if (user) {
-        S.user = user;
-        await initUser();
-      } else {
-        showScreen('s-login');
-        hide('loading');
-      }
-    });
-  });
+  }
+});
 
 async function signIn() {
   const errBox = document.getElementById('login-error');
   if (errBox) errBox.style.display = 'none';
   try {
-    // ลอง Popup ก่อน (popup ไม่ผ่าน mep2026.firebaseapp.com → ไม่โดน Chrome Bounce Tracking ลบ state)
     await auth.signInWithPopup(provider);
-    // Popup สำเร็จ → onAuthStateChanged จะ fire เอง ไม่ต้อง reload
+    // สำเร็จ → onAuthStateChanged จะ fire เอง
   } catch(e) {
-    if (e.code === 'auth/popup-blocked' || e.code === 'auth/cancelled-popup-request' || e.code === 'auth/popup-closed-by-user') {
-      // Popup ถูก block → fallback ใช้ redirect
-      try {
-        await auth.signInWithRedirect(provider);
-      } catch(e2) {
-        if (errBox) { errBox.textContent = '❌ ' + e2.message; errBox.style.display = 'block'; }
-        toast('❌ ' + e2.message);
-      }
-    } else {
-      if (errBox) { errBox.textContent = '❌ ' + e.message; errBox.style.display = 'block'; }
-      toast('❌ ' + e.message);
-    }
+    // popup-closed-by-user = ผู้ใช้ปิดเอง ไม่ต้องแสดง error
+    if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') return;
+    const msg = e.code === 'auth/popup-blocked'
+      ? '⚠️ Popup ถูกบล็อก — กรุณาเปิดลิงก์ใน Safari หรือ Chrome แทน (อย่าเปิดใน LINE/Facebook)'
+      : '❌ ' + e.message;
+    if (errBox) { errBox.textContent = msg; errBox.style.display = 'block'; }
+    toast(msg);
   }
 }
 
